@@ -13,6 +13,20 @@ export default defineConfig({
             compilerOptions: {
                 hydratable: true,
             },
+            preprocess: autoPreprocess(),
+        }),
+        typescript({
+            sourceMap: process.env.NODE_ENV !== "production",
         }),
     ],
+    optimizeDeps: {
+        include: ["@inertiajs/inertia", "@inertiajs/inertia-svelte"],
+    },
+    resolve: {
+        alias: {
+            "@": resolve(projectRootDir, "resources/js"),
+            "~": resolve(projectRootDir, "resources"),
+        },
+        extensions: [".js", ".svelte", ".json"],
+    },
 });
