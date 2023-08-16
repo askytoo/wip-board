@@ -33,4 +33,11 @@ export default defineConfig({
         },
         extensions: [".js", ".svelte", ".json"],
     },
+    test: {
+        // testの対象ファイル
+        include: ["resources/js/**/*.{test,spec}.{js,ts}"],
+        globals: true,
+        // testの環境
+        environment: "jsdom",
+    },
 });
