@@ -1,13 +1,17 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import autoPreprocess from "svelte-preprocess";
+import typescript from "@rollup/plugin-typescript";
+import { resolve } from "path";
+const projectRootDir = resolve(__dirname);
 
 export default defineConfig({
     plugins: [
         laravel({
             input: ["resources/css/app.css", "resources/js/app.js"],
             refresh: true,
-            ssr: 'resources/js/ssr.js',
+            ssr: "resources/js/ssr.js",
         }),
         svelte({
             compilerOptions: {

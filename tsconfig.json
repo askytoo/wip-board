@@ -15,5 +15,5 @@
         }
     },
     "extends": "@tsconfig/svelte/tsconfig.json",
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.svelte"]
+    "include": ["vite.config.js", "resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.svelte"]
 }
