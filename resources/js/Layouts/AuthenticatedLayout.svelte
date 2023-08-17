@@ -119,8 +119,8 @@
                                 />
                                 <path
                                     class={showingNavigationDropdown
-                                        ? "hidden"
-                                        : "inline-flex"}
+                                        ? "inline-flex"
+                                        : "hidden"}
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
@@ -144,6 +144,12 @@
                         active={route().current("dashboard")}
                     >
                         Dashboard
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        href={route("tasks.index")}
+                        active={route().current("tasks.index")}
+                    >
+                        Tasks
                     </ResponsiveNavLink>
                 </div>
 
