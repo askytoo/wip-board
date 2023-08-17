@@ -39,6 +39,12 @@
                             >
                                 Dashboard
                             </NavLink>
+                            <NavLink
+                                href={route("tasks.index")}
+                                active={route().current("tasks.index")}
+                            >
+                                Tasks
+                            </NavLink>
                         </div>
                     </div>
 

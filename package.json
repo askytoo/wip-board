@@ -38,5 +38,8 @@
         "typescript": "^5.1.6",
         "vite": "^4.0.0",
         "vitest": "^0.34.1"
+    },
+    "dependencies": {
+        "svelte-switch": "^0.0.5"
     }
 }

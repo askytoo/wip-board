@@ -12,7 +12,8 @@
         "skipLibCheck": true,
         "paths": {
             "@/*": ["./resources/js/*"]
-        }
+        },
+        "types": ["vitest/globals"]
     },
     "extends": "@tsconfig/svelte/tsconfig.json",
     "include": ["vite.config.js", "resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.svelte"]

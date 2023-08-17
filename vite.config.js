@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import laravel from "laravel-vite-plugin";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import autoPreprocess from "svelte-preprocess";
