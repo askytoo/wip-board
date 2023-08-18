@@ -68,7 +68,7 @@ describe("CreateTasksModal.svelte", async () => {
         expect(description.value).toBe("タスク作成モーダルの入力");
 
         // 今日のタスクに追加するかどうかのチェックボックスをチェック
-        const is_today_task = screen.getByLabelText("今日のタスクに追加する");
+        const is_today_task = screen.getByRole("switch");
         await fireEvent.click(is_today_task);
         // チェックされているか確認
         expect(is_today_task.checked).toBe(true);
