@@ -1,5 +1,6 @@
 <script lang="ts">
     import { useForm } from "@inertiajs/svelte";
+
     import Modal from "../Modal.svelte";
     import TextInput from "../TextInput.svelte";
     import InputLabel from "../InputLabel.svelte";
@@ -8,8 +9,12 @@
     import PrimaryButton from "../PrimaryButton.svelte";
     import LoadingSpinner from "../LoadingSpinner.svelte";
     import Switch from "svelte-switch";
+    import toast from "svelte-french-toast";
 
     export let creating = false;
+    let onClose = () => {
+        creating = false;
+    };
 
     const today = new Date();
     const tomorrow = new Date(today.setDate(today.getDate() + 1))
@@ -32,23 +37,14 @@
         is_today_task: false,
     });
 
-    const closeModal = () => {
-        creating = false;
-
-        $form.clearErrors();
-        $form.reset();
-    };
-
     const createTask = (e: Event) => {
         e.preventDefault();
         $form.post(route("tasks.store"), {
             preserveScroll: true,
             onSuccess: () => {
                 $form.reset();
-                closeModal();
-            },
-            onError: () => {
-                console.log($form.is_today_task);
+                onClose();
+                toast.success("タスクを作成しました")
             },
         });
     };
@@ -59,7 +55,7 @@
     }
 </script>
 
-<Modal show={creating} onClose={closeModal}>
+<Modal show={creating} onClose={onClose} }>
     <form on:submit={createTask} class="p-6">
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
             タスク作成
@@ -178,7 +174,7 @@
 
         <div class="mt-6 flex justify-end gap-3">
             <SecondaryButton
-                onClick={closeModal}
+                onClick={onClose}
                 disabled={$form.processing}
                 classes="w-28 justify-center"
             >

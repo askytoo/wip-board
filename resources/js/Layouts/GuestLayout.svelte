@@ -1,6 +1,7 @@
 <script>
     import { Link } from "@inertiajs/svelte";
     import ApplicationLogo from "../Components/ApplicationLogo.svelte";
+
 </script>
 
 <div

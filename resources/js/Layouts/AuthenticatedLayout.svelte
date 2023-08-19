@@ -7,9 +7,12 @@
     import ApplicationLogo from "../Components/ApplicationLogo.svelte";
     import ResponsiveNavLink from "../Components/ResponsiveNavLink.svelte";
 
+    import { Toaster } from "svelte-french-toast";
+
     let showingNavigationDropdown = false;
 </script>
 
+<Toaster position={"bottom-center"} />
 <div>
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         <nav
