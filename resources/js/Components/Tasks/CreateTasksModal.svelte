@@ -11,30 +11,18 @@
     import Switch from "svelte-switch";
     import toast from "svelte-french-toast";
     import OptionTime from "../OptionTime.svelte";
+    import getTodayDate from "../../utils/getTodayDate";
+    import roundUpTime from "../../utils/roundUpTime";
 
     export let creating = false;
     let onClose = () => {
         creating = false;
     };
 
-    const date = new Date();
-    const yyyy = date.getFullYear();
-    const mm = ("0" + (date.getMonth() + 1)).slice(-2);
-    const dd = ("0" + date.getDate()).slice(-2);
-    const today = yyyy + "-" + mm + "-" + dd;
+    const today = getTodayDate();
 
-    const step = 1800;
-    const stepMinutes = step / 60;
-    // 今の時間を15分単位で切り上げる
-    const nowTime = new Date();
-    const nowMinutes = nowTime.getMinutes();
-    const nowMinutesCeil = Math.ceil(nowMinutes / stepMinutes) * stepMinutes;
-    const nowCeil = nowTime.setMinutes(nowMinutesCeil);
-    const now = new Date(nowCeil).toLocaleTimeString("ja-JP", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    const step = 900;
+    const now = roundUpTime(step, new Date());
 
     const form = useForm({
         title: "",
@@ -64,9 +52,6 @@
         $form.is_today_task = checked;
     }
 
-    console.log("now", now); // => "15:00
-    console.log("deadline_time", $form.deadline_time); // => "15:00")
-    console.log(now === $form.deadline_time); // => false
 </script>
 
 <Modal show={creating} {onClose}>
@@ -120,7 +105,7 @@
                         console.log("e", e);
                     }}
                 >
-                    <OptionTime selectedOption={now} step={step}/>
+                    <OptionTime selectedOption={now} {step} />
                 </select>
             </div>
         </div>
