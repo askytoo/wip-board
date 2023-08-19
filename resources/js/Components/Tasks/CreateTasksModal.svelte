@@ -10,25 +10,35 @@
     import LoadingSpinner from "../LoadingSpinner.svelte";
     import Switch from "svelte-switch";
     import toast from "svelte-french-toast";
+    import OptionTime from "../OptionTime.svelte";
 
     export let creating = false;
     let onClose = () => {
         creating = false;
     };
 
-    const today = new Date();
-    const tomorrow = new Date(today.setDate(today.getDate() + 1))
-        .toISOString()
-        .slice(0, 10);
-    const now = new Date().toLocaleTimeString("en-US", {
+    const date = new Date();
+    const yyyy = date.getFullYear();
+    const mm = ("0" + (date.getMonth() + 1)).slice(-2);
+    const dd = ("0" + date.getDate()).slice(-2);
+    const today = yyyy + "-" + mm + "-" + dd;
+
+    const step = 1800;
+    const stepMinutes = step / 60;
+    // 今の時間を15分単位で切り上げる
+    const nowTime = new Date();
+    const nowMinutes = nowTime.getMinutes();
+    const nowMinutesCeil = Math.ceil(nowMinutes / stepMinutes) * stepMinutes;
+    const nowCeil = nowTime.setMinutes(nowMinutesCeil);
+    const now = new Date(nowCeil).toLocaleTimeString("ja-JP", {
         hour12: false,
-        hour: "numeric",
-        minute: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
     });
 
     const form = useForm({
         title: "",
-        deadline_date: tomorrow,
+        deadline_date: today,
         deadline_time: now,
         deadline: "",
         estimated_effort: 30,
@@ -44,7 +54,7 @@
             onSuccess: () => {
                 $form.reset();
                 onClose();
-                toast.success("タスクを作成しました")
+                toast.success("タスクを作成しました");
             },
         });
     };
@@ -53,9 +63,13 @@
         const { checked } = e.detail;
         $form.is_today_task = checked;
     }
+
+    console.log("now", now); // => "15:00
+    console.log("deadline_time", $form.deadline_time); // => "15:00")
+    console.log(now === $form.deadline_time); // => false
 </script>
 
-<Modal show={creating} onClose={onClose} }>
+<Modal show={creating} {onClose}>
     <form on:submit={createTask} class="p-6">
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
             タスク作成
@@ -98,12 +112,16 @@
                     classes="sr-only"
                 />
 
-                <TextInput
+                <select
                     id="deadline_time"
                     bind:value={$form.deadline_time}
-                    type="time"
-                    classes="mt-1 block"
-                />
+                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                    on:change={(e) => {
+                        console.log("e", e);
+                    }}
+                >
+                    <OptionTime selectedOption={now} step={step}/>
+                </select>
             </div>
         </div>
         <InputError message={$form.errors.deadline} />
