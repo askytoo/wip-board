@@ -51,7 +51,6 @@
         const { checked } = e.detail;
         $form.is_today_task = checked;
     }
-
 </script>
 
 <Modal show={creating} {onClose}>
@@ -171,6 +170,7 @@
                 id="is_today_task"
                 on:change={handleChange}
                 checked={$form.is_today_task}
+                handleDiameter={false}
             />
         </div>
         <InputError message={$form.errors.is_today_task} />

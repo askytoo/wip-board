@@ -36,7 +36,7 @@ describe("CreateTasksModal.svelte", async () => {
         expect(deadline_date.value).toBe(tomorrow);
 
         const deadline_time = screen.getByLabelText("期日時刻");
-        await fireEvent.input(deadline_time, {
+        await fireEvent.select(deadline_time, {
             target: { value: "12:00" },
         });
         // 入力した値が反映されているか確認
