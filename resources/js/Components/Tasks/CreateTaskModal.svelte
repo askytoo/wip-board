@@ -11,49 +11,41 @@
     import Switch from "svelte-switch";
     import toast from "svelte-french-toast";
     import OptionTime from "../OptionTime.svelte";
-    import type { Task } from "@/types/task";
+    import getTodayDate from "../../utils/getTodayDate";
+    import roundUpTime from "../../utils/roundUpTime";
 
-    import { editingTask } from "../../stores";
-
-    export let editing = false;
+    export let creating = false;
     let onClose = () => {
-        editing = false;
-        editingTask.set({} as Task);
+        creating = false;
     };
 
+    const today = getTodayDate();
+
     const step = 900;
+    const now = roundUpTime(step, new Date());
 
     const form = useForm({
         title: "",
-        deadline_date: "",
-        deadline_time: "",
+        deadline_date: today,
+        deadline_time: now,
         deadline: "",
-        estimated_effort: "",
+        estimated_effort: 30,
         output: "",
         description: "",
         is_today_task: false,
     });
 
-    const editTask = () => {
-        $form.put(route("tasks.update", $editingTask.id), {
+    const createTask = () => {
+        $form.post(route("tasks.store"), {
             preserveScroll: true,
             onSuccess: () => {
+                $form.reset();
                 onClose();
-                toast.success("タスクを編集しました");
+                toast.success("タスクを作成しました");
             },
             only: ["tasks"],
         });
     };
-
-    editingTask.subscribe((value) => {
-        $form.title = value.title;
-        $form.deadline_date = value.deadline?.date;
-        $form.deadline_time = value.deadline?.time;
-        $form.estimated_effort = value.estimated_effort;
-        $form.output = value.output;
-        $form.description = value.description;
-        $form.is_today_task = value.is_today_task?.boolean;
-    });
 
     function handleChange(e) {
         const { checked } = e.detail;
@@ -61,10 +53,10 @@
     }
 </script>
 
-<Modal show={editing} {onClose}>
-    <form on:submit|preventDefault={editTask} class="p-6">
+<Modal show={creating} {onClose}>
+    <form on:submit|preventDefault={createTask} class="p-6">
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            タスク編集
+            タスク作成
         </h2>
 
         <div class="mt-6">
@@ -75,6 +67,8 @@
                 bind:value={$form.title}
                 type="text"
                 classes="mt-1 block w-3/4"
+                required
+                isFocused
             />
 
             <InputError message={$form.errors.title} />
@@ -95,6 +89,7 @@
                     bind:value={$form.deadline_date}
                     type="date"
                     classes="mt-1 block"
+                    required
                 />
 
                 <div class="w-4" />
@@ -108,14 +103,10 @@
                     id="deadline_time"
                     bind:value={$form.deadline_time}
                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
-                    on:change={(e) => {
-                        console.log("e", e);
-                    }}
+                    on:change={(e) => {}}
+                    required
                 >
-                    <OptionTime
-                        selectedOption={$editingTask.deadline.time}
-                        {step}
-                    />
+                    <OptionTime selectedOption={now} {step} />
                 </select>
             </div>
         </div>
@@ -134,6 +125,7 @@
                 bind:value={$form.estimated_effort}
                 type="text"
                 classes="mt-1 block w-3/4"
+                required
             />
 
             <InputError message={$form.errors.estimated_effort} />
@@ -152,6 +144,7 @@
                 bind:value={$form.output}
                 type="text"
                 classes="mt-1 block w-3/4"
+                required
             />
 
             <InputError message={$form.errors.output} />
@@ -201,9 +194,9 @@
             >
                 {#if $form.processing}
                     <LoadingSpinner />
-                    <div>保存中</div>
+                    <div>作成中</div>
                 {:else}
-                    保存
+                    作成
                 {/if}
             </PrimaryButton>
             <div class="mt-6 flex justify-end" />

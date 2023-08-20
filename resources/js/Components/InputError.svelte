@@ -1,5 +1,5 @@
-<script>
-    export let message = null;
+<script lang="ts">
+    export let message: string | null = null;
 </script>
 
 {#if message}

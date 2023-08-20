@@ -2,8 +2,8 @@
     import { page } from "@inertiajs/svelte";
     import type { Task } from "@/types/task";
     import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.svelte";
-    import CreateTasksModal from "@/Components/Tasks/CreateTasksModal.svelte";
-    import EditTasksModal from "@/Components/Tasks/EditTasksModal.svelte";
+    import CreateTaskModal from "@/Components/Tasks/CreateTaskModal.svelte";
+    import EditTaskModal from "@/Components/Tasks/EditTaskModal.svelte";
     import DeleteTaskModal from "@/Components/Tasks/DeleteTaskModal.svelte";
 
     import { editingTask } from "../../stores";
@@ -60,7 +60,7 @@
             {/each}
         </table>
     </div>
-    <CreateTasksModal bind:creating />
-    <EditTasksModal bind:editing />
+    <CreateTaskModal bind:creating />
+    <EditTaskModal bind:editing />
     <DeleteTaskModal bind:deleting />
 </AuthenticatedLayout>

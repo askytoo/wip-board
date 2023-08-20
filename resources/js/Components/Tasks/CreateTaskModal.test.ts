@@ -1,6 +1,6 @@
 import { render, fireEvent, screen } from "@testing-library/svelte";
 
-import CreateTasksModal from "@/Components/Tasks/CreateTasksModal.svelte";
+import CreateTaskModal from "@/Components/Tasks/CreateTaskModal.svelte";
 
 describe("CreateTasksModal.svelte", async () => {
     afterEach(() => {
@@ -9,11 +9,11 @@ describe("CreateTasksModal.svelte", async () => {
 
     it("タスク作成モーダルの表示", async () => {
         // CreateTasksModal.svelteのpropsにcreating = trueを渡す
-        render(CreateTasksModal, { creating: true });
+        render(CreateTaskModal, { creating: true });
         expect(screen.getByText("タスク作成")).toBeTruthy();
     });
     it("タスク作成モーダルの入力確認", async () => {
-        render(CreateTasksModal, { creating: true });
+        render(CreateTaskModal, { creating: true });
         // titleを入力
         const title = screen.getByLabelText("タイトル");
         await fireEvent.input(title, {

@@ -75,6 +75,7 @@
                 bind:value={$form.title}
                 type="text"
                 classes="mt-1 block w-3/4"
+                required
             />
 
             <InputError message={$form.errors.title} />
@@ -95,6 +96,7 @@
                     bind:value={$form.deadline_date}
                     type="date"
                     classes="mt-1 block"
+                    required
                 />
 
                 <div class="w-4" />
@@ -111,6 +113,7 @@
                     on:change={(e) => {
                         console.log("e", e);
                     }}
+                    required
                 >
                     <OptionTime
                         selectedOption={$editingTask.deadline.time}
@@ -134,6 +137,7 @@
                 bind:value={$form.estimated_effort}
                 type="text"
                 classes="mt-1 block w-3/4"
+                required
             />
 
             <InputError message={$form.errors.estimated_effort} />
@@ -152,6 +156,7 @@
                 bind:value={$form.output}
                 type="text"
                 classes="mt-1 block w-3/4"
+                required
             />
 
             <InputError message={$form.errors.output} />
