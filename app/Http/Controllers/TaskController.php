@@ -39,13 +39,11 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTaskRequest $request): RedirectResponse
+    public function store(StoreTaskRequest $request): void
     {
         $user = Auth::user();
 
         $user->tasks()->create($request->validated());
-
-        return to_route('tasks.index');
     }
 
     /**

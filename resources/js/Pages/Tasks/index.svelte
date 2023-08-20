@@ -1,22 +1,37 @@
 <script lang="ts">
     import { page } from "@inertiajs/svelte";
+    import type { Task } from "@/types/task";
     import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.svelte";
     import CreateTasksModal from "@/Components/Tasks/CreateTasksModal.svelte";
+    import EditTasksModal from "@/Components/Tasks/EditTasksModal.svelte";
+    import DeleteTaskModal from "@/Components/Tasks/DeleteTaskModal.svelte";
 
-    import type { Task } from "@/types/task";
+    import { editingTask } from "../../stores";
+    import { deletingTask } from "../../stores";
 
     let tasks: Task[] = $page.props.tasks;
 
     let creating = false;
 
     let editing = false;
+    const handleClickEditingButton = (task: Task) => {
+        editingTask.set(task);
+        editing = true;
+    };
+
     let deleting = false;
+    const handleClickDeletingButton = (task: Task) => {
+        deletingTask.set(task);
+        deleting = true;
+    };
 
     $: tasks = $page.props.tasks;
 </script>
 
 <AuthenticatedLayout>
-    <button on:click={() => creating = true} class="text-white">タスクを作成</button>
+    <button on:click={() => (creating = true)} class="text-white">
+        タスクを作成
+    </button>
     <!-- タスク一覧のテーブル -->
     <!-- カラムはタイトル、編集ボタン、削除ボタン -->
     <div class="text-white">
@@ -31,13 +46,13 @@
                     <td>{task.title}</td>
                     <td>
                         <button
-                            on:click={() => (editing = true)}
+                            on:click={() => handleClickEditingButton(task)}
                             class="text-white">編集</button
                         >
                     </td>
                     <td>
                         <button
-                            on:click={() => (deleting = true)}
+                            on:click={() => handleClickDeletingButton(task)}
                             class="text-white">削除</button
                         >
                     </td>
@@ -45,5 +60,7 @@
             {/each}
         </table>
     </div>
-    <CreateTasksModal bind:creating={creating} />
+    <CreateTasksModal bind:creating />
+    <EditTasksModal bind:editing />
+    <DeleteTaskModal bind:deleting />
 </AuthenticatedLayout>

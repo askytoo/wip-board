@@ -11,41 +11,49 @@
     import Switch from "svelte-switch";
     import toast from "svelte-french-toast";
     import OptionTime from "../OptionTime.svelte";
-    import getTodayDate from "../../utils/getTodayDate";
-    import roundUpTime from "../../utils/roundUpTime";
+    import type { Task } from "@/types/task";
 
-    export let creating = false;
+    import { editingTask } from "../../stores";
+
+    export let editing = false;
     let onClose = () => {
-        creating = false;
+        editing = false;
+        editingTask.set({} as Task);
     };
 
-    const today = getTodayDate();
-
     const step = 900;
-    const now = roundUpTime(step, new Date());
 
     const form = useForm({
         title: "",
-        deadline_date: today,
-        deadline_time: now,
+        deadline_date: "",
+        deadline_time: "",
         deadline: "",
-        estimated_effort: 30,
+        estimated_effort: "",
         output: "",
         description: "",
         is_today_task: false,
     });
 
-    const createTask = () => {
-        $form.post(route("tasks.store"), {
+    const editTask = () => {
+        $form.put(route("tasks.update", $editingTask.id), {
             preserveScroll: true,
             onSuccess: () => {
-                $form.reset();
                 onClose();
-                toast.success("タスクを作成しました");
+                toast.success("タスクを編集しました");
             },
             only: ["tasks"],
         });
     };
+
+    editingTask.subscribe((value) => {
+        $form.title = value.title;
+        $form.deadline_date = value.deadline?.date;
+        $form.deadline_time = value.deadline?.time;
+        $form.estimated_effort = value.estimated_effort;
+        $form.output = value.output;
+        $form.description = value.description;
+        $form.is_today_task = value.is_today_task?.boolean;
+    });
 
     function handleChange(e) {
         const { checked } = e.detail;
@@ -53,10 +61,10 @@
     }
 </script>
 
-<Modal show={creating} {onClose}>
-    <form on:submit|preventDefault={createTask} class="p-6">
+<Modal show={editing} {onClose}>
+    <form on:submit|preventDefault={editTask} class="p-6">
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            タスク作成
+            タスク編集
         </h2>
 
         <div class="mt-6">
@@ -100,9 +108,14 @@
                     id="deadline_time"
                     bind:value={$form.deadline_time}
                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
-                    on:change={(e) => {}}
+                    on:change={(e) => {
+                        console.log("e", e);
+                    }}
                 >
-                    <OptionTime selectedOption={now} {step} />
+                    <OptionTime
+                        selectedOption={$editingTask.deadline.time}
+                        {step}
+                    />
                 </select>
             </div>
         </div>
@@ -188,9 +201,9 @@
             >
                 {#if $form.processing}
                     <LoadingSpinner />
-                    <div>作成中</div>
+                    <div>保存中</div>
                 {:else}
-                    作成
+                    保存
                 {/if}
             </PrimaryButton>
             <div class="mt-6 flex justify-end" />
