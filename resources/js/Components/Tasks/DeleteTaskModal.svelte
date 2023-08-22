@@ -6,16 +6,17 @@
     import InputLabel from "../InputLabel.svelte";
     import InputError from "../InputError.svelte";
     import SecondaryButton from "../SecondaryButton.svelte";
-    import PrimaryButton from "../PrimaryButton.svelte";
     import LoadingSpinner from "../LoadingSpinner.svelte";
     import toast from "svelte-french-toast";
     import type { Task } from "@/types/task";
 
     import { deletingTask } from "../../stores";
+    import DangerButton from "../DangerButton.svelte";
 
     export let deleting = false;
     let onClose = () => {
         $form.reset();
+        $form.clearErrors();
         deleting = false;
         deletingTask.set({} as Task);
     };
@@ -62,8 +63,7 @@
             <p>
                 タスクを削除する場合は、入力欄に
                 <span class="text-red-500 dark:text-red-400">
-                    {" "}
-                    {$deletingTask?.title}{" "}
+                    {" "}{$deletingTask?.title}{" "}
                 </span>
                 と入力してください。
             </p>
@@ -78,6 +78,7 @@
                 type="text"
                 classes="mt-1 block w-3/4"
                 required
+                autofocus
             />
 
             <InputError message={errorMessage} />
@@ -92,7 +93,7 @@
                 キャンセル
             </SecondaryButton>
 
-            <PrimaryButton
+            <DangerButton
                 disabled={$form.processing}
                 classes="justify-center w-28 flex gap-2"
             >
@@ -102,7 +103,7 @@
                 {:else}
                     削除
                 {/if}
-            </PrimaryButton>
+            </DangerButton>
             <div class="mt-6 flex justify-end" />
         </div>
     </form>

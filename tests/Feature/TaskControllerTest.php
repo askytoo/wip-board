@@ -138,7 +138,7 @@ class TaskControllerTest extends TestCase
                 'title' => str_repeat('a', 256),
                 'description' => str_repeat('a', 1001),
                 'deadline_date' => Carbon::today()->subDay(1)->format('Y-m-d'),
-                'deadline_time' => 'test deadline time',
+                'deadline_time' => '25:00',
                 'estimated_effort' => 256,
                 'output' => str_repeat('a', 256),
             ])

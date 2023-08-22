@@ -35,7 +35,7 @@ class StoreTaskRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        // 日時をデータに追加
+        // 日時のデータを結合して、deadline としてバリデーションする
         $deadline = ($this->filled(['deadline_date', 'deadline_time'])) ? $this->deadline_date.' '.$this->deadline_time : '';
         $this->merge([
             'deadline' => $deadline,

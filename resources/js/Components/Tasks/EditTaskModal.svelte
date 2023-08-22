@@ -17,6 +17,7 @@
 
     export let editing = false;
     let onClose = () => {
+        $form.clearErrors();
         editing = false;
         editingTask.set({} as Task);
     };
@@ -76,6 +77,7 @@
                 type="text"
                 classes="mt-1 block w-3/4"
                 required
+                autofocus
             />
 
             <InputError message={$form.errors.title} />

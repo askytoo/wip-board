@@ -16,6 +16,7 @@
 
     export let creating = false;
     let onClose = () => {
+        $form.clearErrors();
         creating = false;
     };
 
@@ -24,7 +25,7 @@
     const step = 900;
     const now = roundUpTime(step, new Date());
 
-    const form = useForm({
+    let form = useForm({
         title: "",
         deadline_date: today,
         deadline_time: now,
@@ -68,7 +69,7 @@
                 type="text"
                 classes="mt-1 block w-3/4"
                 required
-                isFocused
+                autofocus
             />
 
             <InputError message={$form.errors.title} />
@@ -109,8 +110,8 @@
                     <OptionTime selectedOption={now} {step} />
                 </select>
             </div>
+            <InputError message={$form.errors.deadline} />
         </div>
-        <InputError message={$form.errors.deadline} />
 
         <div class="mt-4">
             <InputLabel
