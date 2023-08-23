@@ -4,7 +4,6 @@
 
     import {
         createSvelteTable,
-        createColumnHelper,
         flexRender,
         getCoreRowModel,
         getSortedRowModel,
@@ -13,8 +12,10 @@
         getFacetedUniqueValues,
         getFacetedMinMaxValues,
         getPaginationRowModel,
+        getExpandedRowModel,
         type SortDirection,
         type FilterFn,
+        type ExpandedState,
     } from "@tanstack/svelte-table";
     import { rankItem } from "@tanstack/match-sorter-utils";
     import { writable } from "svelte/store";
@@ -33,6 +34,8 @@
         return isSorted ? (isSorted === "asc" ? "🔼" : "🔽") : "";
     }
 
+    const getExpandSymbol = (isExpanded: boolean) => (isExpanded ? "▼" : "▶️");
+
     const globalFilterFn: FilterFn<any> = (row, columnId, value, addMeta) => {
         if (Array.isArray(value)) {
             if (value.length === 0) return true;
@@ -50,8 +53,6 @@
         // Return if the item should be filtered in/out
         return itemRank.passed;
     };
-
-    const columnHelper = createColumnHelper<Task>();
 
     const defaultColumns: ColumnDef<Task>[] = [
         {
@@ -97,6 +98,25 @@
 
     let globalFilter = "";
 
+    let expanded: ExpandedState = {};
+
+    const setExpanded = (updater) => {
+        if (updater instanceof Function) {
+            expanded = updater(expanded);
+        } else {
+            expanded = updater;
+        }
+        options.update((old) => {
+            return {
+                ...old,
+                state: {
+                    ...old.state,
+                    expanded,
+                },
+            };
+        });
+    };
+
     const options = writable<TableOptions<Task>>({
         data: defaultData,
         columns: defaultColumns,
@@ -108,12 +128,15 @@
         getFacetedUniqueValues: getFacetedUniqueValues(),
         getFacetedMinMaxValues: getFacetedMinMaxValues(),
         getPaginationRowModel: getPaginationRowModel(),
+        getExpandedRowModel: getExpandedRowModel(),
+        onExpandedChange: setExpanded,
         state: {
             globalFilter,
             pagination: {
                 pageSize: 7,
                 pageIndex: 0,
             },
+            expanded,
         },
         enableGlobalFilter: true,
     });
@@ -264,6 +287,12 @@
                         <tr
                             class="border-b-2 border-gray-700 dark:border-gray-300"
                         >
+                            <button
+                                class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600 text-center"
+                                on:click={() => $table.toggleAllRowsExpanded()}
+                            >
+                                {getExpandSymbol($table.getIsAllRowsExpanded())}
+                            </button>
                             {#each headerGroup.headers as header}
                                 <th colspan={header.colSpan}>
                                     {#if !header.isPlaceholder}
@@ -282,7 +311,9 @@
                                             />
                                             <span class="pl-1">
                                                 {getSortSymbol(
-                                                    header.column.getIsSorted()
+                                                    header.column
+                                                        .getIsSorted()
+                                                        .toString()
                                                 )}
                                             </span>
                                         </button>
@@ -295,11 +326,14 @@
 
                 <tbody>
                     {#each $table.getRowModel().rows as row}
-                        <tr>
+                        <tr class="border-b border-gray-500">
+                            <td class="py-5 px-2 text-center">
+                                <button on:click={() => row.toggleExpanded()}>
+                                    {getExpandSymbol(row.getIsExpanded())}
+                                </button>
+                            </td>
                             {#each row.getVisibleCells() as cell}
-                                <td
-                                    class="border-b border-gray-500 py-5 px-2 text-center"
-                                >
+                                <td class="py-5 px-2 text-center">
                                     <svelte:component
                                         this={flexRender(
                                             cell.column.columnDef.cell,
@@ -308,9 +342,7 @@
                                     />
                                 </td>
                             {/each}
-                            <td
-                                class="border-b border-gray-500 py-5 px-2 text-center"
-                            >
+                            <td class="py-5 px-2 text-center">
                                 <button
                                     on:click={() =>
                                         handleClickEditingButton(row.original)}
@@ -318,9 +350,7 @@
                                     edit
                                 </button>
                             </td>
-                            <td
-                                class="border-b border-gray-500 py-5 px-2 text-center"
-                            >
+                            <td class="py-5 px-2 text-center">
                                 <button
                                     on:click={() =>
                                         handleClickDeletingButton(row.original)}
@@ -329,6 +359,32 @@
                                 </button>
                             </td>
                         </tr>
+                        <!-- 各行の詳細を表示する -->
+                        {#if row.getIsExpanded()}
+                        <tr class="border-b border-gray-500">
+                                <td />
+                                <td
+                                    colspan={row.getVisibleCells().length + 3}
+                                    class="py-2 px-2"
+                                >
+                                    <!-- ここに展開中のコンテンツを追加 -->
+                                    <div>
+                                        詳細: {row.original.description ?? "なし"}
+                                    </div>
+                                    <div class="flex pt-1">
+                                        <div>
+                                            作成日: {row.original.created_at}
+                                        </div>
+                                        <div class="pl-5">
+                                            着手日: {row.original.started_at ==="" ? "未着手" : row.original.started_at}
+                                        </div>
+                                        <div class="pl-5 text-{row.original.status.class}">
+                                            完了日 : {row.original.completed_at ==="" ? "未完了" : row.original.completed_at}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {/if}
                     {/each}
                 </tbody>
             </table>
@@ -403,4 +459,5 @@
             </div>
         </div>
     </div>
+    <pre>{JSON.stringify(expanded, null, 2)}</pre>
 </div>
