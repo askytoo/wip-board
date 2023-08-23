@@ -44,7 +44,7 @@
                 onClose();
                 toast.success("タスクを作成しました");
             },
-            only: ["tasks"],
+            only: ["tasks", "errors"],
         });
     };
 

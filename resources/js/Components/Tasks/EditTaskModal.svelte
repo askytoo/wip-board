@@ -42,7 +42,7 @@
                 onClose();
                 toast.success("タスクを編集しました");
             },
-            only: ["tasks"],
+            only: ["tasks", "errors"],
         });
     };
 

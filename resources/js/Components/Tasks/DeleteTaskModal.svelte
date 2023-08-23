@@ -38,7 +38,7 @@
                 onClose();
                 toast.success("タスクを削除しました");
             },
-            only: ["tasks"],
+            only: ["tasks", "errors"],
         });
     };
 
