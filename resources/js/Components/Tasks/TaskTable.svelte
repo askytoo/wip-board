@@ -21,7 +21,8 @@
     import { writable } from "svelte/store";
     import type { ColumnDef, TableOptions } from "@tanstack/svelte-table";
     import FacetCheckboxes from "@/Components/Tasks/FacetCheckboxes.svelte";
-    import FacetMinMax from "@/Components/Tasks/FacetMinMax.svelte";;
+    import FacetMinMax from "@/Components/Tasks/FacetMinMax.svelte";
+    import TodayTaskCheckBox from "@/Components/Tasks/TodayTaskCheckBox.svelte";
 
     let defaultData: Task[] = $page.props.tasks;
 
@@ -226,6 +227,7 @@
     };
 
     import { deletingTask } from "../../stores";
+    import { getContext } from "svelte";
 
     export let deleting = false;
 
@@ -334,12 +336,19 @@
                             </td>
                             {#each row.getVisibleCells() as cell}
                                 <td class="py-5 px-2 text-center">
-                                    <svelte:component
-                                        this={flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    />
+                                    {#if cell.column.id === "is_today_task"}
+                                        <TodayTaskCheckBox
+                                            task={cell.getContext().row.original}
+                                            isTodayTask={cell.getValue()}
+                                        />
+                                    {:else}
+                                        <svelte:component
+                                            this={flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        />
+                                    {/if}
                                 </td>
                             {/each}
                             <td class="py-5 px-2 text-center">
@@ -361,7 +370,9 @@
                         </tr>
                         <!-- 各行の詳細を表示する -->
                         {#if row.getIsExpanded()}
-                            <tr class="border-b border-gray-500 dark:text-gray-400 text-gray-600">
+                            <tr
+                                class="border-b border-gray-500 dark:text-gray-400 text-gray-600"
+                            >
                                 <td />
                                 <td
                                     colspan={row.getVisibleCells().length + 3}

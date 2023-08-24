@@ -39,11 +39,11 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth', 'verified')->group(function () {
     Route::resource('tasks', TaskController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::get('/board', [BoardController::class, 'index'])->name('board.index');
-    Route::patch('/board/enqueueTodayTask/{task}', [BoardController::class, 'enqueueTodayTask'])->name('board.enqueueTodayTask');
-    Route::patch('/board/dequeueTodayTask/{task}', [BoardController::class, 'dequeueTodayTask'])->name('board.dequeueTodayTask');
-    Route::patch('/board/putInProgressTask/{task}', [BoardController::class, 'putInProgressTask'])->name('board.putInProgressTask');
-    Route::patch('/board/putOnHoldTask/{task}', [BoardController::class, 'putOnHoldTask'])->name('board.putOnHoldTask');
-    Route::patch('/board/putCompletedTask/{task}', [BoardController::class, 'putCompletedTask'])->name('board.putCompletedTask');
+    Route::get('/boards', [BoardController::class, 'index'])->name('boards.index');
+    Route::patch('/boards/enqueueTodayTask/{task}', [BoardController::class, 'enqueueTodayTask'])->name('boards.enqueueTodayTask');
+    Route::patch('/boards/dequeueTodayTask/{task}', [BoardController::class, 'dequeueTodayTask'])->name('boards.dequeueTodayTask');
+    Route::patch('/boards/putInProgressTask/{task}', [BoardController::class, 'putInProgressTask'])->name('boards.putInProgressTask');
+    Route::patch('/boards/putOnHoldTask/{task}', [BoardController::class, 'putOnHoldTask'])->name('boards.putOnHoldTask');
+    Route::patch('/boards/putCompletedTask/{task}', [BoardController::class, 'putCompletedTask'])->name('boards.putCompletedTask');
 });
 require __DIR__.'/auth.php';

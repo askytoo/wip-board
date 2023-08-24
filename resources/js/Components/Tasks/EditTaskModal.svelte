@@ -189,6 +189,7 @@
                 on:change={handleChange}
                 checked={$form.is_today_task}
                 handleDiameter={false}
+                disabled={$editingTask.status.label !== "未着手"}
             />
         </div>
         <InputError message={$form.errors.is_today_task} />
