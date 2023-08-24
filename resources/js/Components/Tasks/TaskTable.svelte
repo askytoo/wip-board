@@ -24,6 +24,10 @@
     import FacetMinMax from "@/Components/Tasks/FacetMinMax.svelte";
     import TodayTaskCheckBox from "@/Components/Tasks/TodayTaskCheckBox.svelte";
 
+    import TexitBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
+    import Delete from "svelte-material-icons/Delete.svelte";
+    import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
+
     let defaultData: Task[] = $page.props.tasks;
 
     const numFormat = new Intl.NumberFormat("de-DE", {
@@ -227,13 +231,21 @@
     };
 
     import { deletingTask } from "../../stores";
-    import { getContext } from "svelte";
 
     export let deleting = false;
 
     const handleClickDeletingButton = (task: Task) => {
         deletingTask.set(task);
         deleting = true;
+    };
+
+    import { copyingTask } from "../../stores";
+
+    export let copying = false;
+
+    const handleClickCopyingButton = (task: Task) => {
+        copyingTask.set(task);
+        copying = true;
     };
 </script>
 
@@ -338,7 +350,8 @@
                                 <td class="py-5 px-2 text-center">
                                     {#if cell.column.id === "is_today_task"}
                                         <TodayTaskCheckBox
-                                            task={cell.getContext().row.original}
+                                            task={cell.getContext().row
+                                                .original}
                                             isTodayTask={cell.getValue()}
                                         />
                                     {:else}
@@ -356,15 +369,33 @@
                                     on:click={() =>
                                         handleClickEditingButton(row.original)}
                                 >
-                                    edit
+                                    <TexitBoxEdit
+                                        class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
+                                        size={"1.5rem"}
+                                        title={"編集"}
+                                    />
                                 </button>
-                            </td>
-                            <td class="py-5 px-2 text-center">
                                 <button
                                     on:click={() =>
                                         handleClickDeletingButton(row.original)}
+                                    class="ml-2"
                                 >
-                                    delete
+                                    <Delete
+                                        class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
+                                        size={"1.5rem"}
+                                        title={"削除"}
+                                    />
+                                </button>
+                                <button
+                                    on:click={() =>
+                                        handleClickCopyingButton(row.original)}
+                                    class="ml-2"
+                                >
+                                    <ContentCopy
+                                        class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
+                                        size={"1.5rem"}
+                                        title={"コピー"}
+                                    />
                                 </button>
                             </td>
                         </tr>

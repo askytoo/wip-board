@@ -45,6 +45,7 @@
         "@tanstack/svelte-table": "^8.9.5",
         "svelte-flatpickr": "^3.3.2",
         "svelte-french-toast": "^1.2.0",
+        "svelte-material-icons": "^3.0.5",
         "svelte-switch": "^0.0.5"
     }
 }
