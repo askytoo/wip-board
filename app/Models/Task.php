@@ -90,7 +90,7 @@ class Task extends Model
 
         $deadline = new Carbon($value);
 
-        return $deadline->format('Y-m-d H:i');
+        return $deadline->format('Y/m/d H:i');
     }
 
     public function deadline(): Attribute
@@ -100,8 +100,8 @@ class Task extends Model
                 $deadline = new Carbon($value);
 
                 return [
-                    'full' => $deadline->format('Y-m-d H:i'),
-                    'date' => $deadline->format('Y-m-d'),
+                    'full' => $deadline->format('Y/m/d H:i'),
+                    'date' => $deadline->format('Y/m/d'),
                     'time' => $deadline->format('H:i'),
                 ];
             },
@@ -134,8 +134,7 @@ class Task extends Model
                 // 2023-08-08T23:39:24.000000Z -> 2023-08-09 08:39
                 $createdAt = new Carbon($value);
                 $createdAt->setTimezone('Asia/Tokyo');
-                $createdAt = $createdAt->format('Y-m-d H:i');
-                return $createdAt;
+                return $this->fomatDate($createdAt);
             },
         );
     }

@@ -21,7 +21,7 @@
     import { writable } from "svelte/store";
     import type { ColumnDef, TableOptions } from "@tanstack/svelte-table";
     import FacetCheckboxes from "@/Components/Tasks/FacetCheckboxes.svelte";
-    import FacetMinMax from "@/Components/Tasks/FacetMinMax.svelte";
+    import FacetMinMax from "@/Components/Tasks/FacetMinMax.svelte";;
 
     let defaultData: Task[] = $page.props.tasks;
 
@@ -361,7 +361,7 @@
                         </tr>
                         <!-- 各行の詳細を表示する -->
                         {#if row.getIsExpanded()}
-                        <tr class="border-b border-gray-500">
+                            <tr class="border-b border-gray-500 dark:text-gray-400 text-gray-600">
                                 <td />
                                 <td
                                     colspan={row.getVisibleCells().length + 3}
@@ -369,17 +369,27 @@
                                 >
                                     <!-- ここに展開中のコンテンツを追加 -->
                                     <div>
-                                        詳細: {row.original.description ?? "なし"}
+                                        詳細: {row.original.description ??
+                                            "なし"}
                                     </div>
                                     <div class="flex pt-1">
                                         <div>
                                             作成日: {row.original.created_at}
                                         </div>
                                         <div class="pl-5">
-                                            着手日: {row.original.started_at ==="" ? "未着手" : row.original.started_at}
+                                            着手日: {row.original.started_at ===
+                                            ""
+                                                ? "未着手"
+                                                : row.original.started_at}
                                         </div>
-                                        <div class="pl-5 text-{row.original.status.class}">
-                                            完了日 : {row.original.completed_at ==="" ? "未完了" : row.original.completed_at}
+                                        <div
+                                            class="pl-5 text-{row.original
+                                                .status.class}"
+                                        >
+                                            完了日 : {row.original
+                                                .completed_at === ""
+                                                ? "未完了"
+                                                : formatDate()}
                                         </div>
                                     </div>
                                 </td>
@@ -459,5 +469,4 @@
             </div>
         </div>
     </div>
-    <pre>{JSON.stringify(expanded, null, 2)}</pre>
 </div>
