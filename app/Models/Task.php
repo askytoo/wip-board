@@ -101,7 +101,7 @@ class Task extends Model
 
                 return [
                     'full' => $deadline->format('Y/m/d H:i'),
-                    'date' => $deadline->format('Y/m/d'),
+                    'date' => $deadline->format('Y-m-d'),
                     'time' => $deadline->format('H:i'),
                 ];
             },
