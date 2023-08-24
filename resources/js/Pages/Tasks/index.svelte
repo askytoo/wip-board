@@ -13,12 +13,20 @@
 </script>
 
 <AuthenticatedLayout>
+    <svelte:fragment slot="header">
+        <h2
+            class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
+        >
+            タスク一覧
+        </h2>
+    </svelte:fragment>
+
     <button on:click={() => (creating = true)} class="text-white">
         タスクを作成
     </button>
     <TaskTable bind:editing bind:deleting bind:copying />
-    <CreateTaskModal bind:creating />
-    <EditTaskModal bind:editing />
-    <DeleteTaskModal bind:deleting />
-    <CopyTaskModal bind:copying />
 </AuthenticatedLayout>
+<CreateTaskModal bind:creating />
+<EditTaskModal bind:editing />
+<DeleteTaskModal bind:deleting />
+<CopyTaskModal bind:copying />

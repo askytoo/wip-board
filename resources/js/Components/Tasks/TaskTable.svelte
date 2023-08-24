@@ -250,8 +250,6 @@
 </script>
 
 <div class="px-4 text-gray-300">
-    <h1 class="text-4xl">Invoices</h1>
-
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div class="md:col-span-1">
             <h2 class="text-2xl mb-3">Filters</h2>
@@ -272,7 +270,7 @@
                             />
                         </details>
                     {:else if header.column.id === "deadline"}
-                        <details open>
+                        <details open class="pt-5">
                             <summary>
                                 <h3 class="font-semibold inline-block">期日</h3>
                             </summary>
@@ -287,227 +285,243 @@
             {/each}
         </div>
         <div class="md:col-span-4">
-            <input
-                {...noTypeCheck(null)}
-                type="search"
-                class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
-                on:keyup={handleSearch}
-                on:search={handleSearch}
-                placeholder="Search..."
-            />
-            <table class="border-collapse w-full mt-3">
-                <thead>
-                    {#each headerGroups as headerGroup}
-                        <tr
-                            class="border-b-2 border-gray-700 dark:border-gray-300"
-                        >
-                            <button
-                                class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600 text-center"
-                                on:click={() => $table.toggleAllRowsExpanded()}
+            <div class="max-w-7xl py-6 sm:px-6 lg:px-8">
+                <input
+                    {...noTypeCheck(null)}
+                    type="search"
+                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                    on:keyup={handleSearch}
+                    on:search={handleSearch}
+                    placeholder="Search..."
+                />
+                <table class="border-collapse w-full mt-3">
+                    <thead>
+                        {#each headerGroups as headerGroup}
+                            <tr
+                                class="border-b-2 border-gray-700 dark:border-gray-300 text-center"
                             >
-                                {getExpandSymbol($table.getIsAllRowsExpanded())}
-                            </button>
-                            {#each headerGroup.headers as header}
-                                <th colspan={header.colSpan}>
-                                    {#if !header.isPlaceholder}
-                                        <button
-                                            class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
-                                            class:disabled={!header.column.getCanSort()}
-                                            disabled={!header.column.getCanSort()}
-                                            on:click={header.column.getToggleSortingHandler()}
-                                        >
+                                <button
+                                    class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                                    on:click={() =>
+                                        $table.toggleAllRowsExpanded()}
+                                >
+                                    {getExpandSymbol(
+                                        $table.getIsAllRowsExpanded()
+                                    )}
+                                </button>
+                                {#each headerGroup.headers as header}
+                                    <th colspan={header.colSpan}>
+                                        {#if !header.isPlaceholder}
+                                            <button
+                                                class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                                                class:disabled={!header.column.getCanSort()}
+                                                disabled={!header.column.getCanSort()}
+                                                on:click={header.column.getToggleSortingHandler()}
+                                            >
+                                                <svelte:component
+                                                    this={flexRender(
+                                                        header.column.columnDef
+                                                            .header,
+                                                        header.getContext()
+                                                    )}
+                                                />
+                                                <span class="pl-1">
+                                                    {getSortSymbol(
+                                                        header.column
+                                                            .getIsSorted()
+                                                            .toString()
+                                                    )}
+                                                </span>
+                                            </button>
+                                        {/if}
+                                    </th>
+                                {/each}
+                            </tr>
+                        {/each}
+                    </thead>
+
+                    <tbody>
+                        {#each $table.getRowModel().rows as row}
+                            <tr class="border-b border-gray-500">
+                                <td class="py-5 px-2 text-center">
+                                    <button
+                                        on:click={() => row.toggleExpanded()}
+                                    >
+                                        {getExpandSymbol(row.getIsExpanded())}
+                                    </button>
+                                </td>
+                                {#each row.getVisibleCells() as cell}
+                                    <td class="py-5 px-2 text-center">
+                                        {#if cell.column.id === "is_today_task"}
+                                            <TodayTaskCheckBox
+                                                task={cell.getContext().row
+                                                    .original}
+                                                isTodayTask={cell.getValue()}
+                                            />
+                                        {:else}
                                             <svelte:component
                                                 this={flexRender(
-                                                    header.column.columnDef
-                                                        .header,
-                                                    header.getContext()
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
                                                 )}
                                             />
-                                            <span class="pl-1">
-                                                {getSortSymbol(
-                                                    header.column
-                                                        .getIsSorted()
-                                                        .toString()
-                                                )}
-                                            </span>
-                                        </button>
-                                    {/if}
-                                </th>
-                            {/each}
-                        </tr>
-                    {/each}
-                </thead>
-
-                <tbody>
-                    {#each $table.getRowModel().rows as row}
-                        <tr class="border-b border-gray-500">
-                            <td class="py-5 px-2 text-center">
-                                <button on:click={() => row.toggleExpanded()}>
-                                    {getExpandSymbol(row.getIsExpanded())}
-                                </button>
-                            </td>
-                            {#each row.getVisibleCells() as cell}
+                                        {/if}
+                                    </td>
+                                {/each}
                                 <td class="py-5 px-2 text-center">
-                                    {#if cell.column.id === "is_today_task"}
-                                        <TodayTaskCheckBox
-                                            task={cell.getContext().row
-                                                .original}
-                                            isTodayTask={cell.getValue()}
-                                        />
-                                    {:else}
-                                        <svelte:component
-                                            this={flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
+                                    <button
+                                        on:click={() =>
+                                            handleClickEditingButton(
+                                                row.original
                                             )}
+                                    >
+                                        <TexitBoxEdit
+                                            class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
+                                            size={"1.5rem"}
+                                            title={"編集"}
                                         />
-                                    {/if}
-                                </td>
-                            {/each}
-                            <td class="py-5 px-2 text-center">
-                                <button
-                                    on:click={() =>
-                                        handleClickEditingButton(row.original)}
-                                >
-                                    <TexitBoxEdit
-                                        class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
-                                        size={"1.5rem"}
-                                        title={"編集"}
-                                    />
-                                </button>
-                                <button
-                                    on:click={() =>
-                                        handleClickDeletingButton(row.original)}
-                                    class="ml-2"
-                                >
-                                    <Delete
-                                        class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
-                                        size={"1.5rem"}
-                                        title={"削除"}
-                                    />
-                                </button>
-                                <button
-                                    on:click={() =>
-                                        handleClickCopyingButton(row.original)}
-                                    class="ml-2"
-                                >
-                                    <ContentCopy
-                                        class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
-                                        size={"1.5rem"}
-                                        title={"コピー"}
-                                    />
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- 各行の詳細を表示する -->
-                        {#if row.getIsExpanded()}
-                            <tr
-                                class="border-b border-gray-500 dark:text-gray-400 text-gray-600"
-                            >
-                                <td />
-                                <td
-                                    colspan={row.getVisibleCells().length + 3}
-                                    class="py-2 px-2"
-                                >
-                                    <!-- ここに展開中のコンテンツを追加 -->
-                                    <div>
-                                        詳細: {row.original.description ??
-                                            "なし"}
-                                    </div>
-                                    <div class="flex pt-1">
-                                        <div>
-                                            作成日: {row.original.created_at}
-                                        </div>
-                                        <div class="pl-5">
-                                            着手日: {row.original.started_at ===
-                                            ""
-                                                ? "未着手"
-                                                : row.original.started_at}
-                                        </div>
-                                        <div
-                                            class="pl-5 text-{row.original
-                                                .status.class}"
-                                        >
-                                            完了日 : {row.original
-                                                .completed_at === ""
-                                                ? "未完了"
-                                                : formatDate()}
-                                        </div>
-                                    </div>
+                                    </button>
+                                    <button
+                                        on:click={() =>
+                                            handleClickDeletingButton(
+                                                row.original
+                                            )}
+                                        class="ml-2"
+                                    >
+                                        <Delete
+                                            class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
+                                            size={"1.5rem"}
+                                            title={"削除"}
+                                        />
+                                    </button>
+                                    <button
+                                        on:click={() =>
+                                            handleClickCopyingButton(
+                                                row.original
+                                            )}
+                                        class="ml-2"
+                                    >
+                                        <ContentCopy
+                                            class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
+                                            size={"1.5rem"}
+                                            title={"コピー"}
+                                        />
+                                    </button>
                                 </td>
                             </tr>
-                        {/if}
-                    {/each}
-                </tbody>
-            </table>
-            <div class="flex items-center mt-2">
-                <button
-                    class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
-                    on:click={() => setCurrentPage(0)}
-                    class:disabled={!$table.getCanPreviousPage()}
-                    disabled={!$table.getCanPreviousPage()}
-                >
-                    {"<<"}
-                </button>
-                <button
-                    class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
-                    on:click={() =>
-                        setCurrentPage(
-                            $table.getState().pagination.pageIndex - 1
-                        )}
-                    class:disabled={!$table.getCanPreviousPage()}
-                    disabled={!$table.getCanPreviousPage()}
-                >
-                    {"<"}
-                </button>
-                <span> Page </span>
-                <input
-                    type="number"
-                    value={$table.getState().pagination.pageIndex + 1}
-                    min={0}
-                    max={$table.getPageCount() - 1}
-                    on:change={handleCurrPageInput}
-                    class="w-16 mx-1 border1 py-1 px-2 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block"
-                />
-                <span>
-                    {" "}of{" "}
-                    {$table.getPageCount()}
-                </span>
-                <button
-                    class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
-                    on:click={() =>
-                        setCurrentPage(
-                            $table.getState().pagination.pageIndex + 1
-                        )}
-                    class:disabled={!$table.getCanNextPage()}
-                    disabled={!$table.getCanNextPage()}
-                >
-                    {">"}
-                </button>
-                <button
-                    class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
-                    on:click={() => setCurrentPage($table.getPageCount() - 1)}
-                    class:disabled={!$table.getCanNextPage()}
-                    disabled={!$table.getCanNextPage()}
-                >
-                    {">>"}
-                </button>
-                <span class="mx-2 font-semibold">|</span>
-                <select
-                    value={$table.getState().pagination.pageSize}
-                    on:change={setPageSize}
-                    class="border p-2 pr-8 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block"
-                >
-                    {#each [7, 10, 25, 50] as pageSize}
-                        <option value={pageSize}>
-                            Show {pageSize}
-                        </option>
-                    {/each}
-                </select>
-                <span class="mx-2 font-semibold">|</span>
-                <span
-                    >{$table.getPrePaginationRowModel().rows.length} total Rows</span
-                >
+                            <!-- 各行の詳細を表示する -->
+                            {#if row.getIsExpanded()}
+                                <tr
+                                    class="border-b border-gray-500 dark:text-gray-400 text-gray-600"
+                                >
+                                    <td />
+                                    <td
+                                        colspan={row.getVisibleCells().length +
+                                            3}
+                                        class="py-2 px-2"
+                                    >
+                                        <!-- ここに展開中のコンテンツを追加 -->
+                                        <div>
+                                            詳細: {row.original.description ??
+                                                "なし"}
+                                        </div>
+                                        <div class="flex pt-1">
+                                            <div>
+                                                作成日: {row.original
+                                                    .created_at}
+                                            </div>
+                                            <div class="pl-5">
+                                                着手日: {row.original
+                                                    .started_at === ""
+                                                    ? "未着手"
+                                                    : row.original.started_at}
+                                            </div>
+                                            <div
+                                                class="pl-5 text-{row.original
+                                                    .status.class}"
+                                            >
+                                                完了日 : {row.original
+                                                    .completed_at === ""
+                                                    ? "未完了"
+                                                    : formatDate()}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {/if}
+                        {/each}
+                    </tbody>
+                </table>
+                <div class="flex items-center mt-2">
+                    <button
+                        class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                        on:click={() => setCurrentPage(0)}
+                        class:disabled={!$table.getCanPreviousPage()}
+                        disabled={!$table.getCanPreviousPage()}
+                    >
+                        {"<<"}
+                    </button>
+                    <button
+                        class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                        on:click={() =>
+                            setCurrentPage(
+                                $table.getState().pagination.pageIndex - 1
+                            )}
+                        class:disabled={!$table.getCanPreviousPage()}
+                        disabled={!$table.getCanPreviousPage()}
+                    >
+                        {"<"}
+                    </button>
+                    <span> Page </span>
+                    <input
+                        type="number"
+                        value={$table.getState().pagination.pageIndex + 1}
+                        min={0}
+                        max={$table.getPageCount() - 1}
+                        on:change={handleCurrPageInput}
+                        class="w-16 mx-1 border1 py-1 px-2 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block"
+                    />
+                    <span>
+                        {" "}of{" "}
+                        {$table.getPageCount()}
+                    </span>
+                    <button
+                        class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                        on:click={() =>
+                            setCurrentPage(
+                                $table.getState().pagination.pageIndex + 1
+                            )}
+                        class:disabled={!$table.getCanNextPage()}
+                        disabled={!$table.getCanNextPage()}
+                    >
+                        {">"}
+                    </button>
+                    <button
+                        class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                        on:click={() =>
+                            setCurrentPage($table.getPageCount() - 1)}
+                        class:disabled={!$table.getCanNextPage()}
+                        disabled={!$table.getCanNextPage()}
+                    >
+                        {">>"}
+                    </button>
+                    <span class="mx-2 font-semibold">|</span>
+                    <select
+                        value={$table.getState().pagination.pageSize}
+                        on:change={setPageSize}
+                        class="border p-2 pr-8 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm block"
+                    >
+                        {#each [7, 10, 25, 50] as pageSize}
+                            <option value={pageSize}>
+                                Show {pageSize}
+                            </option>
+                        {/each}
+                    </select>
+                    <span class="mx-2 font-semibold">|</span>
+                    <span
+                        >{$table.getPrePaginationRowModel().rows.length} total Rows</span
+                    >
+                </div>
             </div>
         </div>
     </div>
