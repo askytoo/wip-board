@@ -24,7 +24,7 @@
     import FacetCheckboxes from "@/Components/Tasks/FacetCheckboxes.svelte";
     import TodayTaskCheckBox from "@/Components/Tasks/TodayTaskCheckBox.svelte";
 
-    import TexitBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
+    import TextBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
     import FilterOutline from "svelte-material-icons/FilterOutline.svelte";
@@ -374,7 +374,7 @@
                             on:click={() =>
                                 handleClickEditingButton(row.original)}
                         >
-                            <TexitBoxEdit
+                            <TextBoxEdit
                                 class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
                                 size={"1.5rem"}
                                 title={"編集"}
@@ -505,7 +505,4 @@
         <span class="mx-2 font-semibold">|</span>
         <span>{$table.getPrePaginationRowModel().rows.length} total Rows</span>
     </div>
-</div>
-<div class="text-white">
-    {globalFilter}
 </div>
