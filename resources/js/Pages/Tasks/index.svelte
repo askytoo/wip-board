@@ -24,7 +24,9 @@
     <button on:click={() => (creating = true)} class="text-white">
         タスクを作成
     </button>
-    <TaskTable bind:editing bind:deleting bind:copying />
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <TaskTable bind:editing bind:deleting bind:copying />
+    </div>
 </AuthenticatedLayout>
 <CreateTaskModal bind:creating />
 <EditTaskModal bind:editing />

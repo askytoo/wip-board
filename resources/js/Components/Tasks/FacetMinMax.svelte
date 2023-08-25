@@ -1,12 +1,15 @@
 <script lang="ts">
 	import type { ColumnDef, FiltersColumn, Table } from '@tanstack/svelte-table';
 
-	export let column: ColumnDef<any, unknown>;
+	import TextInput from '../TextInput.svelte';
+    import type { Task } from '@/types/task';
+
+	export let column: ColumnDef<Task, unknown>;
 	export let table: Table<any>;
 
 	type FacetVals = {
-		min: number | undefined;
-		max: number | undefined;
+		min: string | undefined;
+		max: string | undefined;
 	};
 
 	function getMinMax(columnId?: string): FacetVals {
@@ -45,8 +48,8 @@
 	<div>
 		<label for="min"
 			>Min
-			<input
-				type="number"
+			<TextInput
+				type="date"
 				name="min"
 				min={facetVals.min}
 				max={facetVals.max}
@@ -60,8 +63,8 @@
 	<div>
 		<label for="max"
 			>Max
-			<input
-				type="number"
+			<TextInput
+				type="date"
 				name="max"
 				min={facetVals.min}
 				max={facetVals.max}

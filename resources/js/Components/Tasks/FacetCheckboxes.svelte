@@ -6,7 +6,9 @@
     } from "@tanstack/svelte-table";
     import Checkbox from "../Checkbox.svelte";
 
-    export let column: ColumnDef<any, unknown>;
+    import type { Task } from "../../types/task";
+
+    export let column: ColumnDef<Task, unknown>;
     export let table: Table<any>;
 
     type Facet = {
@@ -45,6 +47,12 @@
 
     let checkedCols = new Set();
 
+    checkedCols.add("未着手");
+    (column as unknown as FiltersColumn<any>).setFilterValue(
+        Array.from(checkedCols)
+    );
+    let checkedColsArr = Array.from(checkedCols);
+
     function handleCheck(e: Event) {
         const target = e.target as HTMLInputElement;
         const checked = target.checked;
@@ -59,17 +67,27 @@
         (column as unknown as FiltersColumn<any>).setFilterValue(
             Array.from(checkedCols)
         );
+
+        checkedColsArr = Array.from(checkedCols);
     }
 </script>
 
-<div>
+<div class="flex gap-3">
     {#each facetVals.top5 as top5}
-        <div class="ml-3 mt-1">
-            <label class="checkbox">
-                <Checkbox onChange={handleCheck} name={top5.name} />
+        <label class="checkbox">
+            <Checkbox
+                onChange={handleCheck}
+                name={top5.name}
+                checked={top5.name === "未着手" ? true : false}
+            />
+            <span
+                class={checkedColsArr.includes(top5.name)
+                    ? "text-indigo-600 dark:text-indigo-400"
+                    : ""}
+            >
                 {top5.name} ({top5.value})
-            </label>
-        </div>
+            </span>
+        </label>
     {/each}
     {#if facetVals.next20.length > 0}
         <div>
@@ -83,7 +101,13 @@
                                     onChange={handleCheck}
                                     name={next20.name}
                                 />
-                                {next20.name} ({next20.value})
+                                <span
+                                    class={checkedColsArr.includes(next20.name)
+                                        ? "text-indigo-600 dark:text-indigo-400"
+                                        : ""}
+                                >
+                                    {next20.name} ({next20.value})
+                                </span>
                             </label>
                         </div>
                     {/each}
