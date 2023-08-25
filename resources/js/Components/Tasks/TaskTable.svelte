@@ -16,11 +16,10 @@
         type SortDirection,
         type FilterFn,
         type ExpandedState,
-        type VisibilityState,
     } from "@tanstack/svelte-table";
     import { rankItem } from "@tanstack/match-sorter-utils";
     import { writable } from "svelte/store";
-    import type { ColumnDef, TableOptions } from "@tanstack/svelte-table";
+    import type { ColumnDef, SortingState, TableOptions } from "@tanstack/svelte-table";
     import FacetCheckboxes from "@/Components/Tasks/FacetCheckboxes.svelte";
     import TodayTaskCheckBox from "@/Components/Tasks/TodayTaskCheckBox.svelte";
 
@@ -77,13 +76,6 @@
             filterFn: globalFilterFn,
         },
         {
-            accessorKey: "deadline.date",
-            header: () => "期限日",
-            id: "deadline_date",
-            cell: (info) => info.getValue(),
-            filterFn: globalFilterFn,
-        },
-        {
             accessorKey: "title",
             header: () => "タイトル",
             cell: (info) => info.getValue(),
@@ -131,7 +123,22 @@
         });
     };
 
-    let columnVisibility: VisibilityState = { deadline_date: false };
+    let sorting: SortingState = [];
+
+    const setSorting = (updater) => {
+        if (updater instanceof Function) {
+            sorting = updater(sorting);
+        } else {
+            sorting = updater;
+        }
+        options.update((old) => ({
+            ...old,
+            state: {
+                ...old.state,
+                sorting,
+            },
+        }));
+    };
 
     const options = writable<TableOptions<Task>>({
         data: defaultData,
@@ -146,6 +153,7 @@
         getPaginationRowModel: getPaginationRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         onExpandedChange: setExpanded,
+        onSortingChange: setSorting,
         state: {
             globalFilter,
             pagination: {
@@ -153,7 +161,7 @@
                 pageIndex: 0,
             },
             expanded,
-            columnVisibility,
+            sorting,
         },
         enableGlobalFilter: true,
     });
@@ -306,10 +314,10 @@
         <thead>
             {#each headerGroups as headerGroup}
                 <tr
-                    class="border-b-2 border-gray-700 dark:border-gray-300 text-center"
+                    class="border-b-2 border-gray-700 dark:border-gray-300 text-center "
                 >
                     <button
-                        class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                        class="py-5 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
                         on:click={() => $table.toggleAllRowsExpanded()}
                     >
                         {getExpandSymbol($table.getIsAllRowsExpanded())}
@@ -329,13 +337,13 @@
                                             header.getContext()
                                         )}
                                     />
-                                    <span class="pl-1">
-                                        {getSortSymbol(
-                                            header.column
-                                                .getIsSorted()
-                                                .toString()
-                                        )}
-                                    </span>
+                                    <!-- <span class="pl-1"> -->
+                                    <!--     {getSortSymbol( -->
+                                    <!--         header.column -->
+                                    <!--             .getIsSorted() -->
+                                    <!--             .toString() -->
+                                    <!--     )} -->
+                                    <!-- </span> -->
                                 </button>
                             {/if}
                         </th>
@@ -399,7 +407,7 @@
                             <ContentCopy
                                 class="dark:text-gray-300 text-gray-700 hover:text-indigo-400"
                                 size={"1.5rem"}
-                                title={"コピー"}
+                                title={"複製"}
                             />
                         </button>
                     </td>
@@ -433,7 +441,7 @@
                                 >
                                     完了日 : {row.original.completed_at === ""
                                         ? "未完了"
-                                        : formatDate()}
+                                        : row.original.completed_at}
                                 </div>
                             </div>
                         </td>

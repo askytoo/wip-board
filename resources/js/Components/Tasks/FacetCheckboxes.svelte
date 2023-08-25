@@ -78,7 +78,7 @@
             <Checkbox
                 onChange={handleCheck}
                 name={top5.name}
-                checked={top5.name === "未着手" ? true : false}
+                checked={checkedColsArr.includes(top5.name)}
             />
             <span
                 class={checkedColsArr.includes(top5.name)
