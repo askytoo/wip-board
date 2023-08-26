@@ -73,7 +73,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
-            ->get(route('board.index'))
+            ->get(route('boards.index'))
             ->assertInertia(
                 fn (Assert $page) => $page
                     ->has('todayTasks', $todayTaskNum)
@@ -89,7 +89,7 @@ class BoardControllerTest extends TestCase
         $anotherUser = User::factory()->create();
         $response = $this->actingAs($anotherUser)
             ->withSession(['banned' => false])
-            ->get(route('board.index'))
+            ->get(route('boards.index'))
             ->assertInertia(
                 fn (Assert $page) => $page
                     ->has('todayTasks', 0)
@@ -121,7 +121,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
-            ->patch(route('board.enqueueTodayTask', $task->id), [
+            ->patch(route('boards.enqueueTodayTask', $task->id), [
                 'is_today_task' => true,
             ]);
 
@@ -152,7 +152,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($anotherUser)
             ->withSession(['banned' => false])
-            ->patch(route('board.enqueueTodayTask', $task->id), [
+            ->patch(route('boards.enqueueTodayTask', $task->id), [
                 'is_today_task' => true,
             ])->assertStatus(403);
 
@@ -181,7 +181,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
-            ->patch(route('board.dequeueTodayTask', $task->id), [
+            ->patch(route('boards.dequeueTodayTask', $task->id), [
                 'is_today_task' => false,
             ]);
 
@@ -212,7 +212,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($anotherUser)
             ->withSession(['banned' => false])
-            ->patch(route('board.dequeueTodayTask', $task->id), [
+            ->patch(route('boards.dequeueTodayTask', $task->id), [
                 'is_today_task' => false,
             ])->assertStatus(403);
 
@@ -241,7 +241,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
-            ->patch(route('board.putInProgressTask', $task->id), [
+            ->patch(route('boards.putInProgressTask', $task->id), [
                 'status' => Task::STATUS[$this->inProgressStatusNum]['label'],
             ]);
 
@@ -272,7 +272,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($anotherUser)
             ->withSession(['banned' => false])
-            ->patch(route('board.putInProgressTask', $task->id), [
+            ->patch(route('boards.putInProgressTask', $task->id), [
                 'status' => Task::STATUS[$this->inProgressStatusNum]['label'],
             ])->assertStatus(403);
 
@@ -303,7 +303,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($anotherUser)
             ->withSession(['banned' => false])
-            ->patch(route('board.putOnHoldTask', $task->id), [
+            ->patch(route('boards.putOnHoldTask', $task->id), [
                 'status' => Task::STATUS[$this->onHoldStatusNum]['label'],
             ])
             ->assertStatus(403);
@@ -333,7 +333,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
-            ->patch(route('board.putOnHoldTask', $task->id), [
+            ->patch(route('boards.putOnHoldTask', $task->id), [
                 'status' => Task::STATUS[$this->onHoldStatusNum]['label'],
             ]);
 
@@ -361,7 +361,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
-            ->patch(route('board.putCompletedTask', $task->id), [
+            ->patch(route('boards.putCompletedTask', $task->id), [
                 'status' => Task::STATUS[$this->completedStatusNum]['label'],
             ]);
 
@@ -391,7 +391,7 @@ class BoardControllerTest extends TestCase
 
         $response = $this->actingAs($anotherUser)
             ->withSession(['banned' => false])
-            ->patch(route('board.putCompletedTask', $task->id), [
+            ->patch(route('boards.putCompletedTask', $task->id), [
                 'status' => Task::STATUS[$this->completedStatusNum]['label'],
             ])
             ->assertStatus(403);
