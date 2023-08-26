@@ -361,7 +361,7 @@
                         </button>
                     </td>
                     {#each row.getVisibleCells() as cell}
-                        <td class="py-5 px-2 text-center">
+                        <td class="py-5 px-2 max-w-lg text-center whitespace-normal overflow-hidden">
                             {#if cell.column.id === "is_today_task"}
                                 <TodayTaskCheckBox
                                     task={cell.getContext().row.original}
