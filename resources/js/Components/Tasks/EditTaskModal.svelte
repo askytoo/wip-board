@@ -38,9 +38,21 @@
     const editTask = () => {
         $form.put(route("tasks.update", $editingTask.id), {
             preserveScroll: true,
+            onBefore: () => {
+                if ($editingTask.status.label === "完了") {
+                    const result = confirm(
+                        "完了済みのタスクを編集します。よろしいですか？"
+                    );
+                    result || toast.error("タスクの編集をキャンセルしました");
+                    return result;
+                }
+            },
             onSuccess: () => {
                 onClose();
                 toast.success("タスクを編集しました");
+            },
+            onError: (errors) => {
+                toast.error("タスクの編集に失敗しました。時間を空けて再度実行してください。");
             },
             only: ["tasks", "errors"],
         });
