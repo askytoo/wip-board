@@ -52,6 +52,7 @@
                 toast.success("タスクを編集しました");
             },
             onError: (errors) => {
+            if (!errors)
                 toast.error("タスクの編集に失敗しました。時間を空けて再度実行してください。");
             },
             only: ["tasks", "errors"],
