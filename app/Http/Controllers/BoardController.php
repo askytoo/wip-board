@@ -20,7 +20,7 @@ class BoardController extends Controller
         $user = Auth::user();
         $board = new Board();
 
-        return Inertia::render('Board/Index', [
+        return Inertia::render('Boards/index', [
             'todayTasks' => $board->getTodayTasks($user),
             'onHoldTasks' => $board->getMatchedStatusTasks($user, [2]),
             'inProgressTask' => $board->getMatchedStatusTasks($user, [1]),
