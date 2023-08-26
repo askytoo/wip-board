@@ -19,7 +19,7 @@ class TaskController extends Controller
     {
         $user = Auth::user();
 
-        $tasks = $user->tasks()->get();
+        $tasks = $user->tasks()->orderBy('deadline', 'asc')->get();
 
         $response = Inertia::render('Tasks/index', [
             'tasks' => fn () => $tasks,
