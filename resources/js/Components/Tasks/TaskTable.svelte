@@ -514,3 +514,30 @@
         <span>{$table.getPrePaginationRowModel().rows.length} total Rows</span>
     </div>
 </div>
+<div class="ripple-container" >
+  <button class="ripple text-white" on:click={() => console.log("click")}>
+    Click me
+  </button>
+</div>
+
+<style>
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+  }
+
+  @keyframes ripple-animation {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+</style>

@@ -34,6 +34,7 @@
         </PrimaryStyleButton>
         <TaskTable bind:editing bind:deleting bind:copying />
     </div>
+    <div class="border border-white text-white">drag</div>
 </AuthenticatedLayout>
 <CreateTaskModal bind:creating />
 <EditTaskModal bind:editing />
