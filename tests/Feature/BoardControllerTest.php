@@ -57,8 +57,8 @@ class BoardControllerTest extends TestCase
             'deadline' => Carbon::now()->addDay(5),
         ]);
 
-        $recentCompletedTaskNum = 5;
-        $recentCompletedTasks = Task::factory()->count($recentCompletedTaskNum)->create([
+        $recentlyCompletedTaskNum = 5;
+        $recentlyCompletedTasks = Task::factory()->count($recentlyCompletedTaskNum)->create([
             'user_id' => $user->id,
             'status' => Task::STATUS[$this->completedStatusNum]['label'],
             'completed_at' => Carbon::now()->addDay(5),
@@ -80,7 +80,7 @@ class BoardControllerTest extends TestCase
                     ->has('onHoldTasks', $onHoldTaskNum)
                     ->has('inProgressTask', $inProgressTaskNum)
                     ->has('recentDeadlineTasks', $recentDeadlineTaskNum)
-                    ->has('recentCompletedTasks', $recentCompletedTaskNum)
+                    ->has('recentlyCompletedTasks', $recentlyCompletedTaskNum)
                     ->has('overDeadlineTasks', $overDeadlineTaskNum)
                     ->has('statuses', 4),
             );
@@ -96,7 +96,7 @@ class BoardControllerTest extends TestCase
                     ->has('onHoldTasks', 0)
                     ->has('inProgressTask', 0)
                     ->has('recentDeadlineTasks', 0)
-                    ->has('recentCompletedTasks', 0)
+                    ->has('recentlyCompletedTasks', 0)
                     ->has('overDeadlineTasks', 0)
                     ->has('statuses', 4),
             );

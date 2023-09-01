@@ -1,7 +1,9 @@
 <script lang="ts">
     import { flip } from "svelte/animate";
     import { dndzone, type DndEvent } from "svelte-dnd-action";
+    import convertRelativeTime from "@/utils/convertRelativeTime";
     import type { Task } from "@/types/task";
+    import TextBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
 
     const flipDurationMs = 300;
 
@@ -13,17 +15,27 @@
         tasks = e.detail.items;
     };
 
-    export let draggingItem: Task;
+    export let draggingTask: Task;
     export let tasks: Task[];
     export let areaName: string;
     export let areaClasses = "";
     export let itemClasses = "";
     export let dropFromOthersDisabled = false;
+
+    import { editingTask } from "@/stores";
+
+    export let editing = false;
+
+    const handleClickEditingButton = (task: Task) => {
+        editingTask.set(task);
+        editing = true;
+    };
+
 </script>
 
 <div class="border-white px-3 overflow-y-auto {areaClasses}">
     <div class="text-2xl font-bold text-center text-gray-200">
-        {areaName}({tasks.length})
+        {areaName}({tasks?.length})
     </div>
 
     <div
@@ -39,16 +51,26 @@
     >
         {#each tasks as task (task.id)}
             <div
-                class="my-2 {draggingItem.id === task.id ? 'bg-red-500' : ''}}"
+                class="bg-gray-800 dark:bg-gray-200 text-gray-200 dark:text-gray-800 rounded-lg shadow-md p-4 my-4 mx-2"
                 animate:flip={{ duration: flipDurationMs }}
                 on:mousedown={() => {
-                    draggingItem = task;
+                    draggingTask = task;
                 }}
             >
-                <div
-                    class="mx-auto border boder-white text-white {itemClasses}"
-                >
+                <div class="text-lg font-semibold mb-2">
                     {task.title}
+                </div>
+                <div class="pt-2 flex justify-end text-center gap-2">
+                    <div class="">
+                        {convertRelativeTime(task.deadline.full)}
+                    </div>
+                    <button on:click={() => handleClickEditingButton(task)}>
+                        <TextBoxEdit
+                            class="hover:text-indigo-400"
+                            size={"1.5rem"}
+                            title={"編集"}
+                        />
+                    </button>
                 </div>
             </div>
         {/each}

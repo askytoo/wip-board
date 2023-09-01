@@ -44,6 +44,7 @@
     "dependencies": {
         "@tanstack/match-sorter-utils": "^8.8.4",
         "@tanstack/svelte-table": "^8.9.5",
+        "dayjs": "^1.11.9",
         "svelte-flatpickr": "^3.3.2",
         "svelte-french-toast": "^1.2.0",
         "svelte-material-icons": "^3.0.5",

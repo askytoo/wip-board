@@ -25,7 +25,7 @@ class BoardController extends Controller
             'onHoldTasks' => $board->getMatchedStatusTasks($user, [2]),
             'inProgressTask' => $board->getMatchedStatusTasks($user, [1]),
             'recentDeadlineTasks' => $board->getRecentDeadlineTasks($user),
-            'recentCompletedTasks' => $board->getRecentlyCompletedTasks($user),
+            'recentlyCompletedTasks' => $board->getRecentlyCompletedTasks($user),
             'overDeadlineTasks' => $board->getOverDeadlineTasks($user),
             'statuses' => Task::STATUS,
         ]);
