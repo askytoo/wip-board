@@ -269,7 +269,7 @@
     };
 </script>
 
-<div class="px-4 text-gray-300">
+<div class="px-4 text-gray-300 h-full overflow-y-auto hidden-scrollbar pb-44">
     <div class="flex items-center">
         <FilterOutline
             class="dark:text-gray-300 text-gray-700 inline-block align-middle mr-2"
@@ -352,7 +352,7 @@
             {/each}
         </thead>
 
-        <tbody>
+        <tbody class="h-full">
             {#each $table.getRowModel().rows as row}
                 <tr class="border-b border-gray-500">
                     <td class="py-5 px-2 text-center">
