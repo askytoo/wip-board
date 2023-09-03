@@ -84,7 +84,7 @@ class BoardController extends Controller
         $board = new Board();
 
         if ($request->validated()['status'] === Task::STATUS[1]['label']) {
-            $board->putInProgressTask($task);
+            $board->putInProgressTask($user, $task);
         }
     }
 

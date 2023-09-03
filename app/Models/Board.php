@@ -170,15 +170,26 @@ class Board extends Model
     }
 
     /**
-     * タスクを進行中に移す
+     * すでに進行中のタスクを保留中にしてから、タスクを進行中にする
      *
      * @param    $task App\Models\Task
      */
-    public function putInProgressTask(Task $task): bool
+    public function putInProgressTask(User $user, Task $task): bool
     {
         // 今日実行するタスクのみ進行中にできる
         if (!$task->is_today_task['boolean']) {
             return false;
+        }
+
+        // 進行中のタスクがあれば保留にする
+        // 進行中のタスクがなければ何もしない
+        $inProgressTasks = $this->getMatchedStatusTasks($user, [1]);
+        if ($inProgressTasks->count() > 0) {
+            $inProgressTasks->each(function ($task) {
+                $task->update([
+                    'status' => Task::STATUS[2]['label'],
+                ]);
+            });
         }
 
         // statusを進行中にする

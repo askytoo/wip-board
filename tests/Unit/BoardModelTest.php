@@ -307,6 +307,7 @@ class BoardModelTest extends TestCase
     /**
      * @test
      * group boardModel
+     *
      * @description 今日のタスクに追加済みのタスクを今日のタスクに追加できないことを確認する
      */
     public function test_can_not_enqueue_today_if_already_today_task(): void
@@ -381,6 +382,7 @@ class BoardModelTest extends TestCase
     /**
      * @test
      * group boardModel
+     *
      * @description 今日のタスクではないタスクを今日のタスクから削除できないことを確認する
      */
     public function test_can_not_dequeue_today_task_if_not_today_task(): void
@@ -446,10 +448,51 @@ class BoardModelTest extends TestCase
 
         $board = new Board();
 
-        $this->assertTrue($board->putInProgressTask($task));
+        $this->assertTrue($board->putInProgressTask($user, $task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
+            'status' => 1,
+            'started_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /**
+     * @test
+     *
+     * @description 既に実行中のタスクがある場合、実行中のタスクをすべて保留中にしてから、実行中にすることができることを確認する
+     *
+     * group boardModel
+     */
+    public function test_can_put_in_progress_task_when_already_exist_in_progress_task(): void
+    {
+        $user = User::factory()->create();
+        $previousInProgressTask = Task::factory()->create([
+            'title' => 'previous in progress task',
+            'user_id' => $user->id,
+            'status' => Task::STATUS[1]['label'],
+            'is_today_task' => true,
+        ]);
+        $newInProgressTask = Task::factory()->create([
+            'title' => 'new in progress task',
+            'user_id' => $user->id,
+            'status' => Task::STATUS[0]['label'],
+            'is_today_task' => true,
+        ]);
+
+        $board = new Board();
+
+        $this->assertTrue($board->putInProgressTask($user, $newInProgressTask));
+
+        $this->assertDatabaseHas('tasks', [
+            'title' => 'previous in progress task',
+            'id' => $previousInProgressTask->id,
+            'status' => 2,
+            'started_at' => null,
+        ]);
+        $this->assertDatabaseHas('tasks', [
+            'title' => 'new in progress task',
+            'id' => $newInProgressTask->id,
             'status' => 1,
             'started_at' => date('Y-m-d H:i:s'),
         ]);
@@ -473,7 +516,7 @@ class BoardModelTest extends TestCase
 
         $board = new Board();
 
-        $this->assertFalse($board->putInProgressTask($task));
+        $this->assertFalse($board->putInProgressTask($user, $task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
