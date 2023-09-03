@@ -32,6 +32,19 @@
         draggingItem.status?.label === "進行中";
 
     let editing = false;
+
+    let upperContainer: HTMLDivElement;
+    let lowerContainer: HTMLDivElement;
+
+    // upperContainerの高さを取得して、lowerContainerの高さを設定する
+    // upperContainerとlowerContainerをあわせた高さを親要素の高さに合わせる
+    $: {
+        if (upperContainer && lowerContainer) {
+            const upperContainerHeight = upperContainer.offsetHeight;
+            lowerContainer.style.height = `calc(100% - ${upperContainerHeight}px)`;
+        }
+    }
+
 </script>
 
 <AuthenticatedLayout>
@@ -44,58 +57,62 @@
     </svelte:fragment>
 
     <!-- <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8"> -->
-    <div class="flex h-screen">
-        <div class="w-1/4">
-            <DropDownArea
-                areaName="未着手"
-                tasks={noStartedTasks}
-                areaClasses="h-full border-r"
-                bind:draggingTask={draggingItem}
-                dropFromOthersDisabled={!canDropNoStartedTasksAreaDisabled}
-                bind:editing
-            />
-        </div>
-        <div class="w-1/4">
-            <DropDownArea
-                areaName="今日のタスク"
-                tasks={todayTasks}
-                areaClasses="h-full border-r"
-                bind:draggingTask={draggingItem}
-                dropFromOthersDisabled={!canDropTodayTasksAreaDisabled}
-                bind:editing
-            />
-        </div>
-        <div class="w-1/4">
-            <div class="flex-col">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-full pb-36">
+        <div class="flex h-full">
+            <div class="w-1/4 border-l border-r h-full">
                 <DropDownArea
-                    areaName="進行中"
-                    tasks={inProgressTask}
-                    areaClasses="h-80 border-b"
+                    areaName="未着手"
+                    tasks={noStartedTasks}
+                    areaClasses=""
                     bind:draggingTask={draggingItem}
-                    dropFromOthersDisabled={!canDropInProgressTaskAreaDisabled}
-                    bind:editing
-                />
-                <DropDownArea
-                    areaName="保留中"
-                    tasks={onHoldTasks}
-                    areaClasses="pt-10 h-full"
-                    bind:draggingTask={draggingItem}
-                    dropFromOthersDisabled={!canDropOnHoldTaskAreaDisabled}
+                    dropFromOthersDisabled={!canDropNoStartedTasksAreaDisabled}
                     bind:editing
                 />
             </div>
+            <div class="w-1/4 border-r">
+                <DropDownArea
+                    areaName="今日のタスク"
+                    tasks={todayTasks}
+                    areaClasses=""
+                    bind:draggingTask={draggingItem}
+                    dropFromOthersDisabled={!canDropTodayTasksAreaDisabled}
+                    bind:editing
+                />
+            </div>
+            <div class="w-1/4 flex-col h-full">
+                <div bind:this={upperContainer} class="min-h-80 border-b pb-5">
+                    <DropDownArea
+                        areaName="進行中"
+                        tasks={inProgressTask}
+                        areaClasses=""
+                        bind:draggingTask={draggingItem}
+                        dropFromOthersDisabled={!canDropInProgressTaskAreaDisabled}
+                        bind:editing
+                    />
+                </div>
+                <div bind:this={lowerContainer} class="pt-10 h-full">
+                    <DropDownArea
+                        areaName="保留中"
+                        tasks={onHoldTasks}
+                        areaClasses=""
+                        bind:draggingTask={draggingItem}
+                        dropFromOthersDisabled={!canDropOnHoldTaskAreaDisabled}
+                        bind:editing
+                    />
+                </div>
+            </div>
+            <div class="w-1/4 border-l border-r">
+                <DropDownArea
+                    areaName="完了"
+                    tasks={recentlyCompletedTasks}
+                    areaClasses=""
+                    bind:draggingTask={draggingItem}
+                    dropFromOthersDisabled={!canDropRecentlyCompletedTasksAreaDisabled}
+                    bind:editing
+                />
+            </div>
+            <!-- </div> -->
         </div>
-        <div class="w-1/4">
-            <DropDownArea
-                areaName="完了"
-                tasks={recentlyCompletedTasks}
-                areaClasses="h-full border-l"
-                bind:draggingTask={draggingItem}
-                dropFromOthersDisabled={!canDropRecentlyCompletedTasksAreaDisabled}
-                bind:editing
-            />
-        </div>
-        <!-- </div> -->
     </div>
 </AuthenticatedLayout>
 <EditTaskModal bind:editing />

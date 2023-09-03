@@ -45,7 +45,7 @@ class Board extends Model
         return Task::query()
             ->where('user_id', $user->id)
             ->whereIn('status', $statuses)
-            ->latest('deadline')->get();
+            ->oldest('deadline')->get();
     }
 
     /**
@@ -60,7 +60,7 @@ class Board extends Model
             ->where('user_id', $user->id)
             ->where('status', 0) // 未着手
             ->where('is_today_task', true)
-            ->latest('deadline')->get();
+            ->oldest('deadline')->get();
     }
 
     /**
@@ -102,7 +102,7 @@ class Board extends Model
             ->where('deadline', '<=', $date)
             ->where('deadline', '>', Carbon::now())
             ->where('is_today_task', false)
-            ->latest('deadline')->get();
+            ->oldest('deadline')->get();
     }
 
     /**
@@ -118,7 +118,7 @@ class Board extends Model
             ->where('status', 0) // 未着手
             ->where('deadline', '<', Carbon::now())
             ->where('is_today_task', false)
-            ->latest('deadline')->get();
+            ->oldest('deadline')->get();
     }
 
     /**

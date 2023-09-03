@@ -18,7 +18,6 @@
                 onSuccess: () => {
                     toast.success("今日のタスクに追加しました");
                 },
-                only: ["tasks", "errors"],
                 onError: (errors) => {
                     console.log(errors);
                 },
@@ -37,7 +36,6 @@
                 onSuccess: (errors) => {
                     toast.success("今日のタスクから削除しました");
                 },
-                only: ["tasks", "errors"],
             }
         );
     };

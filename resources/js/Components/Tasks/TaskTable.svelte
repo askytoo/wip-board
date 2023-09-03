@@ -314,7 +314,7 @@
         <thead>
             {#each headerGroups as headerGroup}
                 <tr
-                    class="border-b-2 border-gray-700 dark:border-gray-300 text-center "
+                    class="border-b-2 border-gray-700 dark:border-gray-300 text-center"
                 >
                     <button
                         class="py-5 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
