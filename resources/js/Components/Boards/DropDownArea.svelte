@@ -1,24 +1,56 @@
 <script lang="ts">
+    import { router } from "@inertiajs/svelte";
     import { flip } from "svelte/animate";
     import { dndzone, type DndEvent } from "svelte-dnd-action";
+    import toast from "svelte-french-toast";
     import convertRelativeTime from "@/utils/convertRelativeTime";
     import type { Task } from "@/types/task";
     import TextBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
 
     const flipDurationMs = 300;
 
-    export const DndConsider = (e: CustomEvent<DndEvent<Task>>) => {
+    export const dndConsider = (e: CustomEvent<DndEvent<Task>>) => {
         tasks = e.detail.items;
     };
 
-    export const DndFinalize = (e) => {
+    const dndFinalizeInProgressTask = (e: CustomEvent<DndEvent<Task>>) => {
+        // ドロップされたタスクが増えた場合のみonDropを実行する
+        if (
+            e.detail.info.trigger === "droppedIntoZone" &&
+            previousTasksNumber < e.detail.items.length
+        ) {
+            if (previousTasksNumber > 0) {
+                const answer: boolean = confirm(
+                    "進行中にできるタスクは1つだけです。他のタスクを保留中に移動しますか？"
+                );
+
+                if (!answer) {
+                    toast.error("進行中に移動するのをキャンセルしました");
+                    return;
+                }
+            }
+
+            onDrop(draggingTask);
+        }
+    };
+
+    export const dndFinalize = (e: CustomEvent<DndEvent<Task>>) => {
+        // ドロップされたタスクが増えた場合のみonDropを実行する
+        if (
+            e.detail.info.trigger === "droppedIntoZone" &&
+            previousTasksNumber < e.detail.items.length
+        ) {
+            onDrop(draggingTask);
+        }
         tasks = e.detail.items;
     };
 
     export let draggingTask: Task;
     export let tasks: Task[];
+    export let previousTasksNumber: number;
     export let areaName: string;
     export let dropFromOthersDisabled = false;
+    export let onDrop: (task: Task) => void;
 
     import { editingTask } from "@/stores";
 
@@ -60,8 +92,10 @@
             flipDurationMs,
             dropFromOthersDisabled: dropFromOthersDisabled,
         }}
-        on:consider={DndConsider}
-        on:finalize={DndFinalize}
+        on:consider={dndConsider}
+        on:finalize={areaName === "進行中"
+            ? dndFinalizeInProgressTask
+            : dndFinalize}
     >
         {#each tasks as task (task.id)}
             <div
