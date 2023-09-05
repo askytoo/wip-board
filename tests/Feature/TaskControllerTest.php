@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -93,6 +94,18 @@ class TaskControllerTest extends TestCase
             'is_today_task' => true,
             'output' => 'test output',
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => Task::first()->id,
+            'type' => 0,
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => Task::first()->id,
+            'type' => 1,
+        ]);
     }
 
     /**
@@ -164,6 +177,16 @@ class TaskControllerTest extends TestCase
         $task = Task::factory()->create([
             'user_id' => $user->id,
         ]);
+        Activity::factory()->create([
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 0,
+        ]);
+        Activity::factory()->create([
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 3,
+        ]);
 
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
@@ -171,6 +194,10 @@ class TaskControllerTest extends TestCase
 
         $this->assertDatabaseMissing('tasks', [
             'id' => $task->id,
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
         ]);
 
     }
@@ -208,6 +235,7 @@ class TaskControllerTest extends TestCase
         $user = User::factory()->create();
         $task = Task::factory()->create([
             'user_id' => $user->id,
+            'is_today_task' => false,
         ]);
 
         $response = $this->actingAs($user)
@@ -232,6 +260,40 @@ class TaskControllerTest extends TestCase
             'is_today_task' => true,
             'output' => 'test output',
         ]);
+
+        // 更新アクティビティの確認
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 6,
+        ]);
+
+        // 今日のタスクに追加した場合は、追加アクティビティも確認する
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 1,
+        ]);
+
+        // 今日のタスクから削除した場合を確認する
+        $response = $this->actingAs($user)
+            ->withSession(['banned' => false])
+            ->patch(route('tasks.update', $task->id), [
+                'title' => 'test title',
+                'description' => 'test description',
+                'deadline_date' => Carbon::today()->addDay(10)->format('Y-m-d'),
+                'deadline_time' => Carbon::today()->addDay(10)->format('H:i'),
+                'estimated_effort' => 1,
+                'is_today_task' => false,  // 今日のタスクから削除
+                'output' => 'test output',
+            ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 2,
+        ]);
+
     }
 
     /**

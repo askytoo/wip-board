@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Models\Activity;
 use App\Models\Task;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,7 +43,18 @@ class TaskController extends Controller
     {
         $user = Auth::user();
 
-        $user->tasks()->create($request->validated());
+        $task = $user->tasks()->create($request->validated());
+
+        // 作成のアクティビティを記録
+        Activity::create([
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 0,
+        ]);
+
+        // 今日実行するタスクの追加のアクティビティを記録
+        Activity::recordIsTodayTask($user, $task);
+
     }
 
     /**
@@ -70,7 +81,22 @@ class TaskController extends Controller
         //
         $this->authorize('update', $task);
 
-        $task->update($request->validated());
+        $validated = $request->validated();
+
+        $previousIsTodayTask = $task->is_today_task['boolean'];
+
+        $task->update($validated);
+
+
+        // 更新のアクティビティを記録
+        Activity::create([
+            'user_id' => Auth::user()->id,
+            'task_id' => $task->id,
+            'type' => 6,
+        ]);
+
+        // 今日実行するタスクの追加・削除のアクティビティを記録
+        Activity::recordIsTodayTask(Auth::user(), $task, $previousIsTodayTask);
     }
 
     /**
@@ -82,5 +108,8 @@ class TaskController extends Controller
         $this->authorize('delete', $task);
 
         $task->delete();
+
+        // タスクに紐づくアクティビティを削除
+        Activity::where('task_id', $task->id)->delete();
     }
 }
