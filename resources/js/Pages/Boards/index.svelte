@@ -1,7 +1,12 @@
 <script lang="ts">
     import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.svelte";
     import DropDownArea from "@/Components/Boards/DropDownArea.svelte";
+    import CreateTaskModal from "@/Components/Tasks/CreateTaskModal.svelte";
     import EditTaskModal from "@/Components/Tasks/EditTaskModal.svelte";
+    import DeleteTaskModal from "@/Components/Tasks/DeleteTaskModal.svelte";
+    import CopyTaskModal from "@/Components/Tasks/CopyTaskModal.svelte";
+    import Pencil from "svelte-material-icons/Pencil.svelte";
+    import PrimaryStyleButton from "@/Components/PrimaryStyleButton.svelte";
     import type { Task } from "@/types/task";
 
     export let overDeadlineTasks: Task[];
@@ -31,7 +36,10 @@
     $: canDropRecentlyCompletedTasksAreaDisabled =
         draggingItem.status?.label === "進行中";
 
+    let creating = false;
     let editing = false;
+    let deleting = false;
+    let copying = false;
 
     let upperContainer: HTMLDivElement;
     let lowerContainer: HTMLDivElement;
@@ -125,7 +133,15 @@
     </svelte:fragment>
 
     <!-- <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8"> -->
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-full pb-36">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-full pb-48">
+        <PrimaryStyleButton
+            type="button"
+            onClick={() => (creating = true)}
+            classes="pl-1 pr-5 ml-3 mb-3 border-none "
+        >
+            <Pencil class="inline-block mr-2" size="2rem" />
+            <span class="text-lg"> タスクを作成 </span>
+        </PrimaryStyleButton>
         <div class="flex h-full">
             <div class="w-1/4 border-l border-r h-full">
                 <DropDownArea
@@ -134,6 +150,8 @@
                     bind:draggingTask={draggingItem}
                     dropFromOthersDisabled={!canDropNoStartedTasksAreaDisabled}
                     bind:editing
+                    bind:deleting
+                    bind:copying
                     onDrop={dequeueTodayTask}
                     previousTasksNumber={noStartedTasks.length}
                 />
@@ -145,6 +163,8 @@
                     bind:draggingTask={draggingItem}
                     dropFromOthersDisabled={!canDropTodayTasksAreaDisabled}
                     bind:editing
+                    bind:deleting
+                    bind:copying
                     onDrop={enqueueTodayTask}
                     previousTasksNumber={todayTasks.length}
                 />
@@ -157,6 +177,8 @@
                         bind:draggingTask={draggingItem}
                         dropFromOthersDisabled={!canDropInProgressTaskAreaDisabled}
                         bind:editing
+                        bind:deleting
+                        bind:copying
                         onDrop={putInProgressTask}
                         previousTasksNumber={inProgressTask.length}
                     />
@@ -168,6 +190,8 @@
                         bind:draggingTask={draggingItem}
                         dropFromOthersDisabled={!canDropOnHoldTaskAreaDisabled}
                         bind:editing
+                        bind:deleting
+                        bind:copying
                         onDrop={putOnHoldTask}
                         previousTasksNumber={onHoldTasks.length}
                     />
@@ -180,6 +204,8 @@
                     bind:draggingTask={draggingItem}
                     dropFromOthersDisabled={!canDropRecentlyCompletedTasksAreaDisabled}
                     bind:editing
+                    bind:deleting
+                    bind:copying
                     onDrop={putCompletedTask}
                     previousTasksNumber={recentlyCompletedTasks.length}
                 />
@@ -188,4 +214,7 @@
         </div>
     </div>
 </AuthenticatedLayout>
+<CreateTaskModal bind:creating />
 <EditTaskModal bind:editing />
+<DeleteTaskModal bind:deleting />
+<CopyTaskModal bind:copying />

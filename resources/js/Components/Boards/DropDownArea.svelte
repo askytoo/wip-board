@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { router } from "@inertiajs/svelte";
     import { flip } from "svelte/animate";
     import { dndzone, type DndEvent } from "svelte-dnd-action";
-    import toast from "svelte-french-toast";
     import convertRelativeTime from "@/utils/convertRelativeTime";
     import type { Task } from "@/types/task";
     import TextBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
+    import Delete from "svelte-material-icons/Delete.svelte";
+    import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
 
     const flipDurationMs = 300;
 
@@ -13,26 +13,26 @@
         tasks = e.detail.items;
     };
 
-    const dndFinalizeInProgressTask = (e: CustomEvent<DndEvent<Task>>) => {
-        // ドロップされたタスクが増えた場合のみonDropを実行する
-        if (
-            e.detail.info.trigger === "droppedIntoZone" &&
-            previousTasksNumber < e.detail.items.length
-        ) {
-            if (previousTasksNumber > 0) {
-                const answer: boolean = confirm(
-                    "進行中にできるタスクは1つだけです。他のタスクを保留中に移動しますか？"
-                );
-
-                if (!answer) {
-                    toast.error("進行中に移動するのをキャンセルしました");
-                    return;
-                }
-            }
-
-            onDrop(draggingTask);
-        }
-    };
+    // const dndFinalizeInProgressTask = (e: CustomEvent<DndEvent<Task>>) => {
+    //     // ドロップされたタスクが増えた場合のみonDropを実行する
+    //     if (
+    //         e.detail.info.trigger === "droppedIntoZone" &&
+    //         previousTasksNumber < e.detail.items.length
+    //     ) {
+    //         if (previousTasksNumber > 0) {
+    //             const answer: boolean = confirm(
+    //                 "進行中にできるタスクは1つだけです。他のタスクを保留中に移動しますか？"
+    //             );
+    //
+    //             if (!answer) {
+    //                 toast.error("進行中に移動するのをキャンセルしました");
+    //                 return;
+    //             }
+    //         }
+    //
+    //         onDrop(draggingTask);
+    //     }
+    // };
 
     export const dndFinalize = (e: CustomEvent<DndEvent<Task>>) => {
         // ドロップされたタスクが増えた場合のみonDropを実行する
@@ -59,6 +59,24 @@
     const handleClickEditingButton = (task: Task) => {
         editingTask.set(task);
         editing = true;
+    };
+
+    import { deletingTask } from "../../stores";
+
+    export let deleting = false;
+
+    const handleClickDeletingButton = (task: Task) => {
+        deletingTask.set(task);
+        deleting = true;
+    };
+
+    import { copyingTask } from "../../stores";
+
+    export let copying = false;
+
+    const handleClickCopyingButton = (task: Task) => {
+        copyingTask.set(task);
+        copying = true;
     };
 
     const getDeadlineAlartColor = (deadline: string) => {
@@ -93,9 +111,7 @@
             dropFromOthersDisabled: dropFromOthersDisabled,
         }}
         on:consider={dndConsider}
-        on:finalize={areaName === "進行中"
-            ? dndFinalizeInProgressTask
-            : dndFinalize}
+        on:finalize={dndFinalize}
     >
         {#each tasks as task (task.id)}
             <div
@@ -114,15 +130,41 @@
                     <div class="text-lg font-semibold mb-2">
                         {task.title}
                     </div>
-                    <div class="pt-2 flex justify-end text-center gap-2">
-                        <div class="">
-                            {convertRelativeTime(task.deadline.full)}
+                    <div class="pt-2 flex justify-end text-center ">
+                        <div class="pr-4">
+                            {#if task.status.label === "完了"}
+                                {convertRelativeTime(task.completed_at)}完了
+                            {:else if task.status.label === "進行中"}
+                                {convertRelativeTime(task.started_at)}開始
+                            {:else}
+                                期日: {convertRelativeTime(task.deadline.full)}
+                            {/if}
                         </div>
                         <button on:click={() => handleClickEditingButton(task)}>
                             <TextBoxEdit
                                 class="hover:text-indigo-400"
                                 size={"1.5rem"}
                                 title={"編集"}
+                            />
+                        </button>
+                        <button
+                            on:click={() => handleClickDeletingButton(task)}
+                            class="ml-1"
+                        >
+                            <Delete
+                                class="hover:text-indigo-400"
+                                size={"1.5rem"}
+                                title={"削除"}
+                            />
+                        </button>
+                        <button
+                            on:click={() => handleClickCopyingButton(task)}
+                            class="ml-1"
+                        >
+                            <ContentCopy
+                                class="hover:text-indigo-400"
+                                size={"1.5rem"}
+                                title={"複製"}
                             />
                         </button>
                     </div>
