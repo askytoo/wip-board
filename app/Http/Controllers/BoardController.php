@@ -20,7 +20,6 @@ class BoardController extends Controller
     {
         $user = Auth::user();
 
-
         return Inertia::render('Boards/index', [
             'todayTasks' => Board::getTodayTasks($user),
             'onHoldTasks' => Board::getMatchedStatusTasks($user, [2]),
@@ -45,9 +44,7 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-
-
-        if ($request->validated()['is_today_task']) {
+        if ($request->validated()) {
             Board::enqueueTodayTask($task);
         }
 
@@ -73,9 +70,7 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-
-
-        if (! $request->validated()['is_today_task']) {
+        if ($request->validated()) {
             Board::dequeueTodayTask($task);
         }
 
@@ -100,9 +95,7 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-
-
-        if ($request->validated()['status'] === Task::STATUS[1]['label']) {
+        if ($request->validated()) {
             Board::putInProgressTask($user, $task);
         }
 
@@ -121,9 +114,7 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-
-
-        if ($request->validated()['status'] === Task::STATUS[2]['label']) {
+        if ($request->validated()) {
             Board::putOnHoldTask($task);
         }
 
@@ -133,7 +124,6 @@ class BoardController extends Controller
             'task_id' => $task->id,
             'type' => 4,
         ]);
-
 
     }
 
@@ -150,9 +140,7 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-
-
-        if ($request->validated()['status'] === Task::STATUS[3]['label']) {
+        if ($request->validated()) {
             Board::putCompletedTask($task);
         }
 
