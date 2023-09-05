@@ -54,4 +54,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * Get the activities for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Activity>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class);
+    }
 }
