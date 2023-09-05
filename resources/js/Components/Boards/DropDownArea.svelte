@@ -79,7 +79,12 @@
         copying = true;
     };
 
-    const getDeadlineAlartColor = (deadline: string) => {
+    const getTaskCardColor = (task: Task) => {
+        if (task.status.label === "完了") {
+            return "bg-blue-500";
+        }
+
+        const deadline = task.deadline.full;
         const now = new Date();
         const deadlineDate = new Date(deadline);
         const diff = deadlineDate.getTime() - now.getTime();
@@ -122,15 +127,13 @@
                 }}
             >
                 <div
-                    class="rounded-t-lg h-2.5 w-full {getDeadlineAlartColor(
-                        task.deadline.full
-                    )}"
+                    class="rounded-t-lg h-2.5 w-full {getTaskCardColor(task)}"
                 />
                 <div class="p-4 pt-2">
                     <div class="text-lg font-semibold mb-2">
                         {task.title}
                     </div>
-                    <div class="pt-2 flex justify-end text-center ">
+                    <div class="pt-2 flex justify-end text-center">
                         <div class="pr-4">
                             {#if task.status.label === "完了"}
                                 {convertRelativeTime(task.completed_at)}完了
