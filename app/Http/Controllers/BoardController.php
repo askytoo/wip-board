@@ -19,15 +19,15 @@ class BoardController extends Controller
     public function index(): Response
     {
         $user = Auth::user();
-        $board = new Board();
+
 
         return Inertia::render('Boards/index', [
-            'todayTasks' => $board->getTodayTasks($user),
-            'onHoldTasks' => $board->getMatchedStatusTasks($user, [2]),
-            'inProgressTask' => $board->getMatchedStatusTasks($user, [1]),
-            'recentDeadlineTasks' => $board->getRecentDeadlineTasks($user),
-            'recentlyCompletedTasks' => $board->getRecentlyCompletedTasks($user),
-            'overDeadlineTasks' => $board->getOverDeadlineTasks($user),
+            'todayTasks' => Board::getTodayTasks($user),
+            'onHoldTasks' => Board::getMatchedStatusTasks($user, [2]),
+            'inProgressTask' => Board::getMatchedStatusTasks($user, [1]),
+            'recentDeadlineTasks' => Board::getRecentDeadlineTasks($user),
+            'recentlyCompletedTasks' => Board::getRecentlyCompletedTasks($user),
+            'overDeadlineTasks' => Board::getOverDeadlineTasks($user),
             'statuses' => Task::STATUS,
         ]);
     }
@@ -45,10 +45,10 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-        $board = new Board();
+
 
         if ($request->validated()['is_today_task']) {
-            $board->enqueueTodayTask($task);
+            Board::enqueueTodayTask($task);
         }
 
         // 今日実行するタスクに追加のアクティビティを記録
@@ -73,10 +73,10 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-        $board = new Board();
+
 
         if (! $request->validated()['is_today_task']) {
-            $board->dequeueTodayTask($task);
+            Board::dequeueTodayTask($task);
         }
 
         // 今日実行するタスクから削除のアクティビティを記録
@@ -100,10 +100,10 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-        $board = new Board();
+
 
         if ($request->validated()['status'] === Task::STATUS[1]['label']) {
-            $board->putInProgressTask($user, $task);
+            Board::putInProgressTask($user, $task);
         }
 
         // 着手のアクティビティを記録
@@ -121,10 +121,10 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-        $board = new Board();
+
 
         if ($request->validated()['status'] === Task::STATUS[2]['label']) {
-            $board->putOnHoldTask($task);
+            Board::putOnHoldTask($task);
         }
 
         // 保留のアクティビティを記録
@@ -150,10 +150,10 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-        $board = new Board();
+
 
         if ($request->validated()['status'] === Task::STATUS[3]['label']) {
-            $board->putCompletedTask($task);
+            Board::putCompletedTask($task);
         }
 
         // 完了のアクティビティを記録

@@ -40,7 +40,7 @@ class Board extends Model
      * @param  int[] $statuses ステータスの配列;
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getMatchedStatusTasks(User $user, array $statuses): Collection
+    public static function getMatchedStatusTasks(User $user, array $statuses): Collection
     {
         return Task::query()
             ->where('user_id', $user->id)
@@ -54,7 +54,7 @@ class Board extends Model
      * @param  User  $user ユーザー
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getTodayTasks(User $user): Collection
+    public static function getTodayTasks(User $user): Collection
     {
         return Task::query()
             ->where('user_id', $user->id)
@@ -72,7 +72,7 @@ class Board extends Model
      * @param  int  $days 日数
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getRecentlyCompletedTasks(User $user, int $days = 5): Collection
+    public static function getRecentlyCompletedTasks(User $user, int $days = 5): Collection
     {
         $date = Carbon::today()->subDays($days);
 
@@ -92,7 +92,7 @@ class Board extends Model
      * @param  int  $days 日数
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getRecentDeadlineTasks(User $user, int $days = 5): Collection
+    public static function getRecentDeadlineTasks(User $user, int $days = 5): Collection
     {
         $date = Carbon::today()->endOfDay()->addDays($days);
 
@@ -111,7 +111,7 @@ class Board extends Model
      * @param  User  $user ユーザー
      * @return Illuminate\Database\Eloquent\Collection
      */
-    public function getOverDeadlineTasks(User $user): Collection
+    public static function getOverDeadlineTasks(User $user): Collection
     {
         return Task::query()
             ->where('user_id', $user->id)
@@ -126,7 +126,7 @@ class Board extends Model
      *
      * @param    $task App\Models\Task
      */
-    public function enqueueTodayTask(Task $task): bool
+    public static function enqueueTodayTask(Task $task): bool
     {
         // 今日実行するタスクに追加済みのタスクは追加できない
         if ($task->is_today_task['boolean']) {
@@ -150,7 +150,7 @@ class Board extends Model
      *
      * @param    $task App\Models\Task
      */
-    public function dequeueTodayTask(Task $task): bool
+    public static function dequeueTodayTask(Task $task): bool
     {
         // 今日実行するタスクでないタスクは外せない
         if (!$task->is_today_task['boolean']) {
@@ -174,7 +174,7 @@ class Board extends Model
      *
      * @param    $task App\Models\Task
      */
-    public function putInProgressTask(User $user, Task $task): bool
+    public static function putInProgressTask(User $user, Task $task): bool
     {
         // 今日実行するタスクのみ進行中にできる
         if (!$task->is_today_task['boolean']) {
@@ -183,7 +183,7 @@ class Board extends Model
 
         // 進行中のタスクがあれば保留にする
         // 進行中のタスクがなければ何もしない
-        $inProgressTasks = $this->getMatchedStatusTasks($user, [1]);
+        $inProgressTasks = Board::getMatchedStatusTasks($user, [1]);
         if ($inProgressTasks->count() > 0) {
             $inProgressTasks->each(function ($task) {
                 $task->update([
@@ -206,7 +206,7 @@ class Board extends Model
      *
      * @param    $task App\Models\Task
      */
-    public function putCompletedTask(Task $task): bool
+    public static function putCompletedTask(Task $task): bool
     {
         // 進行中のタスクのみ完了にできる
         if ($task->status['label'] !== Task::STATUS[1]['label']) {
@@ -228,7 +228,7 @@ class Board extends Model
      *
      * @param    $task App\Models\Task
      */
-    public function putOnHoldTask(Task $task): bool
+    public static function putOnHoldTask(Task $task): bool
     {
         // 進行中のタスクのみ保留にできる
         if ($task->status['label'] !== Task::STATUS[1]['label']) {
