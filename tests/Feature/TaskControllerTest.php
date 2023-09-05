@@ -177,6 +177,8 @@ class TaskControllerTest extends TestCase
         $task = Task::factory()->create([
             'user_id' => $user->id,
         ]);
+
+        // タスクに紐づくアクティビティを作成
         Activity::factory()->create([
             'user_id' => $user->id,
             'task_id' => $task->id,

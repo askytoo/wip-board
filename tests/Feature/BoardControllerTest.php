@@ -129,6 +129,12 @@ class BoardControllerTest extends TestCase
             'id' => $task->id,
             'is_today_task' => true,
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 1,
+        ]);
     }
 
     /**
@@ -189,6 +195,12 @@ class BoardControllerTest extends TestCase
             'id' => $task->id,
             'is_today_task' => false,
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 2,
+        ]);
     }
 
     /**
@@ -248,6 +260,12 @@ class BoardControllerTest extends TestCase
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'status' => $this->inProgressStatusNum,
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 3,
         ]);
     }
 
@@ -341,6 +359,12 @@ class BoardControllerTest extends TestCase
             'id' => $task->id,
             'status' => $this->onHoldStatusNum,
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 4,
+        ]);
     }
 
     /**
@@ -368,6 +392,12 @@ class BoardControllerTest extends TestCase
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'status' => $this->completedStatusNum,
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 5,
         ]);
     }
 

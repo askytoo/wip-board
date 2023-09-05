@@ -23,7 +23,7 @@ class Activity extends Model
         0 => ['label' => '作成'],
         1 => ['label' => '今日のタスクに追加'],
         2 => ['label' => '今日のタスクから削除'],
-        3 => ['label' => '開始'],
+        3 => ['label' => '着手'],
         4 => ['label' => '保留'],
         5 => ['label' => '完了'],
         6 => ['label' => '編集'],
