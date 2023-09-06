@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -61,8 +62,15 @@ class BoardControllerTest extends TestCase
         $recentlyCompletedTasks = Task::factory()->count($recentlyCompletedTaskNum)->create([
             'user_id' => $user->id,
             'status' => Task::STATUS[$this->completedStatusNum]['label'],
-            'completed_at' => Carbon::now()->addDay(5),
         ]);
+
+        foreach ($recentlyCompletedTasks as $task) {
+            Activity::factory()->create([
+                'task_id' => $task->id,
+                'type' => 5, // タスク完了
+                'created_at' => Carbon::now()->subDay(1),
+            ]);
+        }
 
         $overDeadlineTaskNum = 6;
         $overDeadlineTasks = Task::factory()->count($overDeadlineTaskNum)->create([

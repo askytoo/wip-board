@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Activity;
 use App\Models\Board;
 use App\Models\Task;
 use App\Models\User;
@@ -58,7 +59,6 @@ class BoardModelTest extends TestCase
 
         $user = User::factory()->create();
 
-
         $tasks1 = Task::factory()->count($taskNum1)->create([
             'status' => Task::STATUS[$statusNum1]['label'],
             'user_id' => $user->id,
@@ -86,7 +86,6 @@ class BoardModelTest extends TestCase
         $taskNum = 3;
 
         $user = User::factory()->create();
-
 
         $tasks = Task::factory()->count($taskNum)->create([
             'is_today_task' => true,
@@ -126,20 +125,39 @@ class BoardModelTest extends TestCase
     {
         $taskNum = 3;
 
+        $defaultDays = 5;
+
         $user = User::factory()->create();
 
-
         $tasks = Task::factory()->count($taskNum)->create([
-            'completed_at' => Carbon::now()->subDay(5),
             'status' => Task::STATUS[3]['label'],
             'user_id' => $user->id,
         ]);
+
+        // 5日前に完了したタスクのアクティビティを作成
+        foreach ($tasks as $task) {
+            Activity::factory()->create([
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+                'type' => 5,
+                'created_at' => Carbon::now()->subDay($defaultDays),
+            ]);
+        }
 
         $notRecentlyCompletedTasks = Task::factory()->count(4)->create([
-            'completed_at' => Carbon::now()->subDay(6),
             'status' => Task::STATUS[3]['label'],
             'user_id' => $user->id,
         ]);
+
+        // 6日前に完了したタスクのアクティビティを作成
+        foreach ($notRecentlyCompletedTasks as $task) {
+            Activity::factory()->create([
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+                'type' => 5,
+                'created_at' => Carbon::now()->subDay($defaultDays + 1),
+            ]);
+        }
 
         $matchedTasks = Board::getRecentlyCompletedTasks($user);
 
@@ -160,18 +178,33 @@ class BoardModelTest extends TestCase
 
         $user = User::factory()->create();
 
-
         $tasks = Task::factory()->count($taskNum)->create([
-            'completed_at' => Carbon::now()->subDay($days),
             'status' => Task::STATUS[3]['label'],
             'user_id' => $user->id,
         ]);
+
+        foreach ($tasks as $task) {
+            Activity::factory()->create([
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+                'type' => 5,
+                'created_at' => Carbon::now()->subDay($days),
+            ]);
+        }
 
         $notRecentlyCompletedTasks = Task::factory()->count(4)->create([
-            'completed_at' => Carbon::now()->subDay(5),
             'status' => Task::STATUS[3]['label'],
             'user_id' => $user->id,
         ]);
+
+        foreach ($notRecentlyCompletedTasks as $task) {
+            Activity::factory()->create([
+                'user_id' => $user->id,
+                'task_id' => $task->id,
+                'type' => 5,
+                'created_at' => Carbon::now()->subDay($days + 1),
+            ]);
+        }
 
         $matchedTasks = Board::getRecentlyCompletedTasks($user, $days);
 
@@ -190,7 +223,6 @@ class BoardModelTest extends TestCase
         $taskNum = 3;
 
         $user = User::factory()->create();
-
 
         $tasks = Task::factory()->count($taskNum)->create([
             'deadline' => Carbon::now()->addDay(5),
@@ -222,7 +254,6 @@ class BoardModelTest extends TestCase
 
         $user = User::factory()->create();
 
-
         $tasks = Task::factory()->count($taskNum)->create([
             'deadline' => Carbon::now()->addDay($days),
             'status' => Task::STATUS[0]['label'],
@@ -251,7 +282,6 @@ class BoardModelTest extends TestCase
         $taskNum = 3;
 
         $user = User::factory()->create();
-
 
         $tasks = Task::factory()->count($taskNum)->create([
             'deadline' => Carbon::now()->subDay(1),
@@ -292,18 +322,22 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-
-
         $this->assertTrue(Board::enqueueTodayTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'is_today_task' => true,
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $task->id,
+            'type' => 2, //  今日のタスクに追加
+        ]);
     }
 
     /**
      * @test
+     *
      * @group boardModel
      *
      * @description 今日のタスクに追加済みのタスクを今日のタスクに追加できないことを確認する
@@ -317,13 +351,16 @@ class BoardModelTest extends TestCase
             'is_today_task' => true,
         ]);
 
-
-
         $this->assertFalse(Board::enqueueTodayTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'is_today_task' => true,
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 2, //  今日のタスクに追加
         ]);
     }
 
@@ -341,13 +378,16 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-
-
         $this->assertFalse(Board::enqueueTodayTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'is_today_task' => false,
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 2, //  今日のタスクに追加
         ]);
     }
 
@@ -367,18 +407,22 @@ class BoardModelTest extends TestCase
             'is_today_task' => true,
         ]);
 
-
-
         $this->assertTrue(Board::dequeueTodayTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'is_today_task' => false,
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $task->id,
+            'type' => 3, //  今日のタスクから削除
+        ]);
     }
 
     /**
      * @test
+     *
      * @group boardModel
      *
      * @description 今日のタスクではないタスクを今日のタスクから削除できないことを確認する
@@ -392,13 +436,16 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-
-
         $this->assertFalse(Board::dequeueTodayTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'is_today_task' => false,
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 3, //  今日のタスクから削除
         ]);
     }
 
@@ -418,13 +465,16 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-
-
         $this->assertFalse(Board::dequeueTodayTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'is_today_task' => false,
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 3, //  今日のタスクから削除
         ]);
     }
 
@@ -444,14 +494,17 @@ class BoardModelTest extends TestCase
             'is_today_task' => true,
         ]);
 
-
-
         $this->assertTrue(Board::putInProgressTask($user, $task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'status' => 1,
-            'started_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 3,
         ]);
     }
 
@@ -468,31 +521,38 @@ class BoardModelTest extends TestCase
         $previousInProgressTask = Task::factory()->create([
             'title' => 'previous in progress task',
             'user_id' => $user->id,
-            'status' => Task::STATUS[1]['label'],
+            'status' => Task::STATUS[1]['label'], // 実行中
             'is_today_task' => true,
         ]);
         $newInProgressTask = Task::factory()->create([
             'title' => 'new in progress task',
             'user_id' => $user->id,
-            'status' => Task::STATUS[0]['label'],
+            'status' => Task::STATUS[0]['label'], // 未着手
             'is_today_task' => true,
         ]);
-
-
 
         $this->assertTrue(Board::putInProgressTask($user, $newInProgressTask));
 
         $this->assertDatabaseHas('tasks', [
             'title' => 'previous in progress task',
             'id' => $previousInProgressTask->id,
-            'status' => 2,
-            'started_at' => null,
+            'status' => 2, // 保留中
         ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $previousInProgressTask->id,
+            'type' => 4, // 保留
+        ]);
+
         $this->assertDatabaseHas('tasks', [
             'title' => 'new in progress task',
             'id' => $newInProgressTask->id,
-            'status' => 1,
-            'started_at' => date('Y-m-d H:i:s'),
+            'status' => 1, // 実行中
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $newInProgressTask->id,
+            'type' => 3, // 実行中
         ]);
     }
 
@@ -512,14 +572,16 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-
-
         $this->assertFalse(Board::putInProgressTask($user, $task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'status' => 0,
-            'started_at' => null,
+            'status' => 0, // 未着手
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 3, // 実行中
         ]);
     }
 
@@ -538,15 +600,17 @@ class BoardModelTest extends TestCase
             'status' => Task::STATUS[1]['label'],
         ]);
 
-
-
         $this->assertTrue(Board::putCompletedTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'status' => 3,
+            'status' => 3, // 完了
             'is_today_task' => false,
-            'completed_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $task->id,
+            'type' => 5, // 完了
         ]);
     }
 
@@ -565,14 +629,16 @@ class BoardModelTest extends TestCase
             'status' => Task::STATUS[0]['label'],
         ]);
 
-
-
         $this->assertFalse(Board::putCompletedTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'status' => 0,
-            'completed_at' => null,
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 5,
         ]);
     }
 
@@ -591,13 +657,16 @@ class BoardModelTest extends TestCase
             'status' => Task::STATUS[1]['label'],
         ]);
 
-
-
         $this->assertTrue(Board::putOnHoldTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
             'status' => 2,
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $task->id,
+            'type' => 4, // 保留
         ]);
     }
 
@@ -616,13 +685,16 @@ class BoardModelTest extends TestCase
             'status' => Task::STATUS[0]['label'],
         ]);
 
-
-
         $this->assertFalse(Board::putOnHoldTask($task));
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
-            'status' => 0,
+            'status' => 0, // 未着手
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'task_id' => $task->id,
+            'type' => 4, // 保留
         ]);
     }
 }

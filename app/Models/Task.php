@@ -24,7 +24,6 @@ class Task extends Model
         'status',
         'user_id',
         'deadline',
-        'started_at',
         'completed_at',
         'estimated_effort',
         'is_today_task',
@@ -105,24 +104,6 @@ class Task extends Model
                     'date' => $deadline->format('Y-m-d'),
                     'time' => $deadline->format('H:i'),
                 ];
-            },
-        );
-    }
-
-    public function startedAt(): Attribute
-    {
-        return new Attribute(
-            get: function ($value) {
-                return $this->fomatDate($value);
-            },
-        );
-    }
-
-    public function completedAt(): Attribute
-    {
-        return new Attribute(
-            get: function ($value) {
-                return $this->fomatDate($value);
             },
         );
     }

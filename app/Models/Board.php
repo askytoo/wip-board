@@ -20,8 +20,6 @@ class Board extends Model
 
     protected $fillable = [
         'status',
-        'started_at',
-        'completed_at',
         'is_today_task',
     ];
 
@@ -37,7 +35,7 @@ class Board extends Model
      * 複数のstatusを指定することも可能
      *
      * @param  User  $user ユーザー
-     * @param  int[] $statuses ステータスの配列;
+     * @param  int[]  $statuses ステータスの配列;
      * @return Illuminate\Database\Eloquent\Collection
      */
     public static function getMatchedStatusTasks(User $user, array $statuses): Collection
@@ -76,11 +74,15 @@ class Board extends Model
     {
         $date = Carbon::today()->subDays($days);
 
-        return Task::query()
+        $tasks = Task::query()
             ->where('user_id', $user->id)
-            ->where('status', 3) // 完了
-            ->where('completed_at', '>=', $date)
-            ->latest('completed_at')->get();
+            ->whereHas('activities', function ($query) use ($date) {
+                $query->where('activities.created_at', '>=', $date)
+                    ->where('activities.type', 5);
+            })
+            ->get();
+
+        return $tasks;
     }
 
     /**
@@ -142,6 +144,12 @@ class Board extends Model
             'is_today_task' => true,
         ]);
 
+        Activity::create([
+            'user_id' => $task->user_id,
+            'task_id' => $task->id,
+            'type' => 2,
+        ]);
+
         return true;
     }
 
@@ -153,17 +161,23 @@ class Board extends Model
     public static function dequeueTodayTask(Task $task): bool
     {
         // 今日実行するタスクでないタスクは外せない
-        if (!$task->is_today_task['boolean']) {
+        if (! $task->is_today_task['boolean']) {
             return false;
         }
 
         // 未着手のタスクのみ外せる
-        if (!$task->is_today_task['boolean']) {
+        if (! $task->is_today_task['boolean']) {
             return false;
         }
 
         $task->update([
             'is_today_task' => false,
+        ]);
+
+        Activity::create([
+            'user_id' => $task->user_id,
+            'task_id' => $task->id,
+            'type' => 3,
         ]);
 
         return true;
@@ -177,7 +191,7 @@ class Board extends Model
     public static function putInProgressTask(User $user, Task $task): bool
     {
         // 今日実行するタスクのみ進行中にできる
-        if (!$task->is_today_task['boolean']) {
+        if (! $task->is_today_task['boolean']) {
             return false;
         }
 
@@ -186,16 +200,19 @@ class Board extends Model
         $inProgressTasks = Board::getMatchedStatusTasks($user, [1]);
         if ($inProgressTasks->count() > 0) {
             $inProgressTasks->each(function ($task) {
-                $task->update([
-                    'status' => Task::STATUS[2]['label'],
-                ]);
+                Board::putOnHoldTask($task);
             });
         }
 
         // statusを進行中にする
         $task->update([
             'status' => Task::STATUS[1]['label'],
-            'started_at' => Carbon::now(),
+        ]);
+
+        Activity::create([
+            'user_id' => $user->id,
+            'task_id' => $task->id,
+            'type' => 3,
         ]);
 
         return true;
@@ -216,8 +233,13 @@ class Board extends Model
         // statusを完了にする
         $task->update([
             'status' => Task::STATUS[3]['label'],
-            'completed_at' => Carbon::now(),
             'is_today_task' => false,
+        ]);
+
+        Activity::create([
+            'user_id' => $task->user_id,
+            'task_id' => $task->id,
+            'type' => 5,
         ]);
 
         return true;
@@ -238,6 +260,12 @@ class Board extends Model
         // statusを保留にする
         $task->update([
             'status' => Task::STATUS[2]['label'],
+        ]);
+
+        Activity::create([
+            'user_id' => $task->user_id,
+            'task_id' => $task->id,
+            'type' => 4,
         ]);
 
         return true;

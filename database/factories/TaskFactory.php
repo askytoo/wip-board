@@ -24,8 +24,6 @@ class TaskFactory extends Factory
             'status' => 0,
             'user_id' => fake()->uuid(),
             'deadline' =>Carbon::now()->addDay(10),
-            'started_at' => null,
-            'completed_at' => null,
             'estimated_effort' => fake()->randomNumber([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
             'is_today_task' => false,
             'output' => fake()->sentence(),
