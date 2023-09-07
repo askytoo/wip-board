@@ -139,7 +139,6 @@ class BoardControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 1,
         ]);
@@ -205,7 +204,6 @@ class BoardControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 2,
         ]);
@@ -271,7 +269,6 @@ class BoardControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 3,
         ]);
@@ -369,7 +366,6 @@ class BoardControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 4,
         ]);
@@ -403,7 +399,6 @@ class BoardControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 5,
         ]);

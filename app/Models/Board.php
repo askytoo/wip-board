@@ -144,12 +144,6 @@ class Board extends Model
             'is_today_task' => true,
         ]);
 
-        Activity::create([
-            'user_id' => $task->user_id,
-            'task_id' => $task->id,
-            'type' => 2,
-        ]);
-
         return true;
     }
 
@@ -172,12 +166,6 @@ class Board extends Model
 
         $task->update([
             'is_today_task' => false,
-        ]);
-
-        Activity::create([
-            'user_id' => $task->user_id,
-            'task_id' => $task->id,
-            'type' => 3,
         ]);
 
         return true;
@@ -209,12 +197,6 @@ class Board extends Model
             'status' => Task::STATUS[1]['label'],
         ]);
 
-        Activity::create([
-            'user_id' => $user->id,
-            'task_id' => $task->id,
-            'type' => 3,
-        ]);
-
         return true;
     }
 
@@ -236,12 +218,6 @@ class Board extends Model
             'is_today_task' => false,
         ]);
 
-        Activity::create([
-            'user_id' => $task->user_id,
-            'task_id' => $task->id,
-            'type' => 5,
-        ]);
-
         return true;
     }
 
@@ -260,12 +236,6 @@ class Board extends Model
         // statusを保留にする
         $task->update([
             'status' => Task::STATUS[2]['label'],
-        ]);
-
-        Activity::create([
-            'user_id' => $task->user_id,
-            'task_id' => $task->id,
-            'type' => 4,
         ]);
 
         return true;

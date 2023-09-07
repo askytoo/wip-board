@@ -137,7 +137,6 @@ class BoardModelTest extends TestCase
         // 5日前に完了したタスクのアクティビティを作成
         foreach ($tasks as $task) {
             Activity::factory()->create([
-                'user_id' => $user->id,
                 'task_id' => $task->id,
                 'type' => 5,
                 'created_at' => Carbon::now()->subDay($defaultDays),
@@ -152,7 +151,6 @@ class BoardModelTest extends TestCase
         // 6日前に完了したタスクのアクティビティを作成
         foreach ($notRecentlyCompletedTasks as $task) {
             Activity::factory()->create([
-                'user_id' => $user->id,
                 'task_id' => $task->id,
                 'type' => 5,
                 'created_at' => Carbon::now()->subDay($defaultDays + 1),
@@ -185,7 +183,6 @@ class BoardModelTest extends TestCase
 
         foreach ($tasks as $task) {
             Activity::factory()->create([
-                'user_id' => $user->id,
                 'task_id' => $task->id,
                 'type' => 5,
                 'created_at' => Carbon::now()->subDay($days),
@@ -199,7 +196,6 @@ class BoardModelTest extends TestCase
 
         foreach ($notRecentlyCompletedTasks as $task) {
             Activity::factory()->create([
-                'user_id' => $user->id,
                 'task_id' => $task->id,
                 'type' => 5,
                 'created_at' => Carbon::now()->subDay($days + 1),
@@ -329,10 +325,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => true,
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $task->id,
-            'type' => 2, //  今日のタスクに追加
-        ]);
     }
 
     /**
@@ -358,10 +350,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => true,
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 2, //  今日のタスクに追加
-        ]);
     }
 
     /**
@@ -385,10 +373,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 2, //  今日のタスクに追加
-        ]);
     }
 
     /**
@@ -414,10 +398,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $task->id,
-            'type' => 3, //  今日のタスクから削除
-        ]);
     }
 
     /**
@@ -443,10 +423,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 3, //  今日のタスクから削除
-        ]);
     }
 
     /**
@@ -472,10 +448,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 3, //  今日のタスクから削除
-        ]);
     }
 
     /**
@@ -501,11 +473,6 @@ class BoardModelTest extends TestCase
             'status' => 1,
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
-            'task_id' => $task->id,
-            'type' => 3,
-        ]);
     }
 
     /**
@@ -539,10 +506,6 @@ class BoardModelTest extends TestCase
             'status' => 2, // 保留中
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $previousInProgressTask->id,
-            'type' => 4, // 保留
-        ]);
 
         $this->assertDatabaseHas('tasks', [
             'title' => 'new in progress task',
@@ -550,10 +513,6 @@ class BoardModelTest extends TestCase
             'status' => 1, // 実行中
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $newInProgressTask->id,
-            'type' => 3, // 実行中
-        ]);
     }
 
     /**
@@ -579,10 +538,6 @@ class BoardModelTest extends TestCase
             'status' => 0, // 未着手
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 3, // 実行中
-        ]);
     }
 
     /**
@@ -608,10 +563,6 @@ class BoardModelTest extends TestCase
             'is_today_task' => false,
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $task->id,
-            'type' => 5, // 完了
-        ]);
     }
 
     /**
@@ -636,10 +587,6 @@ class BoardModelTest extends TestCase
             'status' => 0,
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 5,
-        ]);
     }
 
     /**
@@ -664,10 +611,6 @@ class BoardModelTest extends TestCase
             'status' => 2,
         ]);
 
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $task->id,
-            'type' => 4, // 保留
-        ]);
     }
 
     /**
@@ -692,9 +635,5 @@ class BoardModelTest extends TestCase
             'status' => 0, // 未着手
         ]);
 
-        $this->assertDatabaseMissing('activities', [
-            'task_id' => $task->id,
-            'type' => 4, // 保留
-        ]);
     }
 }

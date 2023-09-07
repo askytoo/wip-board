@@ -50,7 +50,6 @@ class BoardController extends Controller
 
         // 今日実行するタスクに追加のアクティビティを記録
         Activity::create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 1,
         ]);
@@ -76,7 +75,6 @@ class BoardController extends Controller
 
         // 今日実行するタスクから削除のアクティビティを記録
         Activity::create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 2,
         ]);
@@ -101,7 +99,6 @@ class BoardController extends Controller
 
         // 着手のアクティビティを記録
         Activity::create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 3,
         ]);
@@ -120,7 +117,6 @@ class BoardController extends Controller
 
         // 保留のアクティビティを記録
         Activity::create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 4,
         ]);
@@ -146,7 +142,6 @@ class BoardController extends Controller
 
         // 完了のアクティビティを記録
         Activity::create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 5,
         ]);

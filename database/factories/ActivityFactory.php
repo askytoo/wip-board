@@ -18,7 +18,6 @@ class ActivityFactory extends Factory
     {
         return [
             //
-            'user_id' =>  fake()->uuid(),
             'task_id' => fake()->uuid(),
             'type' => 0,
         ];

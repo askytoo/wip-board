@@ -17,7 +17,7 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksIndex
+     * @group taskController
      * @description トップページにアクセスできることを確認する
      */
     public function test_can_index(): void
@@ -29,12 +29,24 @@ class TaskControllerTest extends TestCase
             'user_id' => $user->id,
         ]);
 
+        Activity::factory()->create([
+            'task_id' => $tasks[0]->id,
+            'type' => 3, //着手
+        ]);
+
+        Activity::factory()->create([
+            'task_id' => $tasks[1]->id,
+            'type' => 5, // 完了
+        ]);
+
         $response = $this->actingAs($user)
             ->withSession(['banned' => false])
             ->get(route('tasks.index'))
             ->assertInertia(
                 fn (Assert $page) => $page
                 ->has('tasks', $taskNum)
+                ->has('tasks.0.activities', 1)
+                ->has('tasks.1.activities', 1)
             );
 
     }
@@ -96,13 +108,11 @@ class TaskControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => Task::first()->id,
             'type' => 0,
         ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => Task::first()->id,
             'type' => 1,
         ]);
@@ -180,12 +190,10 @@ class TaskControllerTest extends TestCase
 
         // タスクに紐づくアクティビティを作成
         Activity::factory()->create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 0,
         ]);
         Activity::factory()->create([
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 3,
         ]);
@@ -265,14 +273,12 @@ class TaskControllerTest extends TestCase
 
         // 更新アクティビティの確認
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 6,
         ]);
 
         // 今日のタスクに追加した場合は、追加アクティビティも確認する
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 1,
         ]);
@@ -291,7 +297,6 @@ class TaskControllerTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('activities', [
-            'user_id' => $user->id,
             'task_id' => $task->id,
             'type' => 2,
         ]);

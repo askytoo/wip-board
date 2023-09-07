@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Activity extends Model
 {
@@ -14,7 +15,6 @@ class Activity extends Model
     use HasUuids;
 
     protected $fillable = [
-        'user_id',
         'task_id',
         'type',
     ];
@@ -41,11 +41,11 @@ class Activity extends Model
     /**
      * リレーションの定義
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User>
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough<User>
      */
-    public function user(): BelongsTo
+    public function user(): HasOneThrough
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOneThrough(User::class, Task::class);
     }
 
     /**
@@ -65,19 +65,17 @@ class Activity extends Model
      * @param  Task  $task タスク
      * @param  bool  $previousIsTodayTask データが更新される前のis_today_taskの値。新規作成の場合は引数なし。
      */
-    public static function recordIsTodayTask(User $user, Task $task, bool $previousIsTodayTask = false): void
+    public static function recordIsTodayTask(Task $task, bool $previousIsTodayTask = false): void
     {
         if (! $previousIsTodayTask && $task->is_today_task['boolean']) {
             // 今日実行するタスクに追加された場合
             Activity::create([
-                'user_id' => $user->id,
                 'task_id' => $task->id,
                 'type' => 1,
             ]);
         } elseif ($previousIsTodayTask && ! $task->is_today_task['boolean']) {
             // 今日実行するタスクから削除された場合
             Activity::create([
-                'user_id' => $user->id,
                 'task_id' => $task->id,
                 'type' => 2,
             ]);

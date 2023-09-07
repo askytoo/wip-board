@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -58,10 +59,10 @@ class User extends Authenticatable
     /**
      * Get the activities for the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Activity>
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<Activity, Task>
      */
-    public function activities(): HasMany
+    public function activities(): HasManyThrough
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasManyThrough(Activity::class, Task::class);
     }
 }
