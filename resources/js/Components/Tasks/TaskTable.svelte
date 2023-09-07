@@ -19,7 +19,11 @@
     } from "@tanstack/svelte-table";
     import { rankItem } from "@tanstack/match-sorter-utils";
     import { writable } from "svelte/store";
-    import type { ColumnDef, SortingState, TableOptions } from "@tanstack/svelte-table";
+    import type {
+        ColumnDef,
+        SortingState,
+        TableOptions,
+    } from "@tanstack/svelte-table";
     import FacetCheckboxes from "@/Components/Tasks/FacetCheckboxes.svelte";
     import TodayTaskCheckBox from "@/Components/Tasks/TodayTaskCheckBox.svelte";
 
@@ -267,6 +271,9 @@
         copyingTask.set(task);
         copying = true;
     };
+
+    import getStartedAt from "@/utils/getStartedAtFromTask";
+    import getCompletedAt from "@/utils/getCompletedAtFromTask";
 </script>
 
 <div class="px-4 text-gray-300 h-full overflow-y-auto hidden-scrollbar pb-44">
@@ -361,7 +368,9 @@
                         </button>
                     </td>
                     {#each row.getVisibleCells() as cell}
-                        <td class="py-5 px-2 max-w-lg text-center whitespace-normal overflow-hidden">
+                        <td
+                            class="py-5 px-2 max-w-lg text-center whitespace-normal overflow-hidden"
+                        >
                             {#if cell.column.id === "is_today_task"}
                                 <TodayTaskCheckBox
                                     task={cell.getContext().row.original}
@@ -431,17 +440,13 @@
                                     作成日: {row.original.created_at}
                                 </div>
                                 <div class="pl-5">
-                                    着手日: {row.original.started_at === ""
-                                        ? "未着手"
-                                        : row.original.started_at}
+                                    着手日: {getStartedAt(row.original)}
                                 </div>
                                 <div
                                     class="pl-5 text-{row.original.status
                                         .class}"
                                 >
-                                    完了日 : {row.original.completed_at === ""
-                                        ? "未完了"
-                                        : row.original.completed_at}
+                                    完了日 : {getCompletedAt(row.original)}
                                 </div>
                             </div>
                         </td>
@@ -514,30 +519,30 @@
         <span>{$table.getPrePaginationRowModel().rows.length} total Rows</span>
     </div>
 </div>
-<div class="ripple-container" >
-  <button class="ripple text-white" on:click={() => console.log("click")}>
-    Click me
-  </button>
+<div class="ripple-container">
+    <button class="ripple text-white" on:click={() => console.log("click")}>
+        Click me
+    </button>
 </div>
 
 <style>
-  .ripple-container {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ripple {
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.6);
-    transform: scale(0);
-    animation: ripple-animation 0.6s linear;
-  }
-
-  @keyframes ripple-animation {
-    to {
-      transform: scale(4);
-      opacity: 0;
+    .ripple-container {
+        position: relative;
+        overflow: hidden;
     }
-  }
+
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+    }
+
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
 </style>

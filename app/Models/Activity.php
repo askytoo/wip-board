@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,16 @@ class Activity extends Model
             get: function ($value) {
                 return self::TYPE[$value]['label'];
             },
+        );
+    }
+
+    public function createdAt(): Attribute
+    {
+        return new Attribute(
+            // アクセサ
+            get: fn ($value) => Carbon::parse($value)
+                ->timezone('Asia/Tokyo')
+                ->format('Y-m-d H:i'),
         );
     }
 
@@ -88,13 +99,13 @@ class Activity extends Model
      */
     public static function recordInProgressTask(Task $previousTask): void
     {
-        if ($previousTask->status["label"] === Task::STATUS[0]['label']) {
+        if ($previousTask->status['label'] === Task::STATUS[0]['label']) {
             // 更新前のタスクが未着手だった場合は着手のアクティビティを記録
             Activity::create([
                 'task_id' => $previousTask->id,
                 'type' => 2,
             ]);
-        } elseif ($previousTask->status["label"] === Task::STATUS[2]['label']) {
+        } elseif ($previousTask->status['label'] === Task::STATUS[2]['label']) {
             // 更新前のタスクが保留だった場合は再開のアクティビティを記録
             Activity::create([
                 'task_id' => $previousTask->id,

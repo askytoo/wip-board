@@ -99,6 +99,9 @@
             return "bg-gray-500";
         }
     };
+
+import getStartedAt from "@/utils/getStartedAtFromTask";
+import getCompletedAt from "@/utils/getCompletedAtFromTask";
 </script>
 
 <div class="border-white px-3 h-full pb-12">
@@ -136,9 +139,9 @@
                     <div class="pt-2 flex justify-end text-center">
                         <div class="pr-4">
                             {#if task.status.label === "完了"}
-                                {convertRelativeTime(task.completed_at)}完了
+                                {convertRelativeTime(getCompletedAt(task))}完了
                             {:else if task.status.label === "進行中"}
-                                {convertRelativeTime(task.started_at)}開始
+                                {convertRelativeTime(getStartedAt(task))}開始
                             {:else}
                                 期日: {convertRelativeTime(task.deadline.full)}
                             {/if}

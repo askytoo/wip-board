@@ -6,13 +6,11 @@ export type Task = {
     deadline: {full: string; date: string; time: string;};
     description: string;
     status: TaskStatus;
-    started_at: string;
-    completed_at: string;
     estimated_effort: number;
     is_today_task: { label: string; boolean: boolean };
     output: string;
     created_at: string;
-    activities: undefined | Activity[];
+    activities: Activity[];
 };
 
 export type TaskStatus =

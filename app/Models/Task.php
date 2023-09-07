@@ -88,9 +88,9 @@ class Task extends Model
             return '';
         }
 
-        $deadline = new Carbon($value);
+        $date = new Carbon($value);
 
-        return $deadline->format('Y/m/d H:i');
+        return $date->format('Y/m/d H:i');
     }
 
     public function deadline(): Attribute
@@ -111,13 +111,9 @@ class Task extends Model
     public function createdAt(): Attribute
     {
         return new Attribute(
-            get: function ($value) {
-                // 日本時間に変換して返す
-                // 2023-08-08T23:39:24.000000Z -> 2023-08-09 08:39
-                $createdAt = new Carbon($value);
-                $createdAt->setTimezone('Asia/Tokyo');
-                return $this->fomatDate($createdAt);
-            },
+            get: fn ($value) => Carbon::parse($value)
+                ->timezone('Asia/Tokyo')
+                ->format('Y-m-d h:i')
         );
     }
 
