@@ -5,11 +5,10 @@ namespace Tests\Feature;
 use App\Models\Activity;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\TestCase;
 
 class TaskControllerTest extends TestCase
 {
@@ -17,7 +16,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
+     *
      * @group taskController
+     *
      * @description トップページにアクセスできることを確認する
      */
     public function test_can_index(): void
@@ -29,14 +30,18 @@ class TaskControllerTest extends TestCase
             'user_id' => $user->id,
         ]);
 
+        // 着手のアクティビティを記録
         Activity::factory()->create([
             'task_id' => $tasks[0]->id,
             'type' => 3, //着手
+            'created_at' => Carbon::now()->addDay(1),
         ]);
 
+        // 完了のアクティビティを記録
         Activity::factory()->create([
-            'task_id' => $tasks[1]->id,
+            'task_id' => $tasks[0]->id,
             'type' => 5, // 完了
+            'created_at' => Carbon::now()->addDay(2),
         ]);
 
         $response = $this->actingAs($user)
@@ -44,16 +49,17 @@ class TaskControllerTest extends TestCase
             ->get(route('tasks.index'))
             ->assertInertia(
                 fn (Assert $page) => $page
-                ->has('tasks', $taskNum)
-                ->has('tasks.0.activities', 1)
-                ->has('tasks.1.activities', 1)
+                    ->has('tasks', $taskNum)
+                    ->has('tasks.0.activities', 2)
             );
 
     }
 
     /**
      * @test
-     * @group tasksIndex
+     *
+     * @group taskController
+     *
      * @description 他のユーザーのタスクは表示されないことを確認する
      */
     public function test_can_not_view_another_user_tasks_at_index(): void
@@ -71,13 +77,15 @@ class TaskControllerTest extends TestCase
             ->get(route('tasks.index'))
             ->assertInertia(
                 fn (Assert $page) => $page
-                ->has('tasks', 0)
+                    ->has('tasks', 0)
             );
     }
 
     /**
      * @test
-     * @group tasksStore
+     *
+     * @group taskController
+     *
      * @description タスクを登録できることを確認する
      */
     public function test_can_store_task(): void
@@ -95,7 +103,6 @@ class TaskControllerTest extends TestCase
                 'is_today_task' => true,
                 'output' => 'test output',
             ]);
-
 
         $this->assertDatabaseHas('tasks', [
             'title' => 'test title',
@@ -120,7 +127,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksStore
+     *
+     * @group taskController
+     *
      * @description 入力がない場合はタスクを登録できないことを確認する
      */
     public function test_can_not_store_task_by_empty_data(): void
@@ -148,7 +157,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksStore
+     *
+     * @group taskController
+     *
      * @description 不正データの場合はタスクを登録できないことを確認する
      */
     public function test_can_not_store_task_by_invalid_data(): void
@@ -178,7 +189,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksDestroy
+     *
+     * @group taskController
+     *
      * @description タスクを削除できることを確認する
      */
     public function test_can_destroy_task(): void
@@ -214,7 +227,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksDestroy
+     *
+     * @group taskController
+     *
      * @description 他のユーザーのタスクは削除できないことを確認する
      */
     public function test_can_not_destroy_another_user_task(): void
@@ -237,7 +252,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksUpdate
+     *
+     * @group taskController
+     *
      * @description タスクを更新できることを確認する
      */
     public function test_can_update_task(): void
@@ -305,7 +322,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksUpdate
+     *
+     * @group taskController
+     *
      * @description 他のユーザーのタスクは更新できないことを確認する
      */
     public function test_can_not_update_another_user_task(): void
@@ -343,7 +362,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksUpdate
+     *
+     * @group taskController
+     *
      * @description 不正データの場合はタスクを更新できないことを確認する
      */
     public function test_can_not_update_task_by_invalid_data(): void
@@ -376,7 +397,9 @@ class TaskControllerTest extends TestCase
 
     /**
      * @test
-     * @group tasksUpdate
+     *
+     * @group taskController
+     *
      * @description 入力がない場合はタスクを更新できないことを確認する
      */
     public function test_can_not_update_task_by_empty_data(): void
@@ -404,5 +427,4 @@ class TaskControllerTest extends TestCase
                 'output' => 'アウトプットは必ず指定してください。',
             ]);
     }
-
 }

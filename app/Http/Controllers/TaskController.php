@@ -20,7 +20,8 @@ class TaskController extends Controller
         $user = Auth::user();
 
         $tasks = $user->tasks()->with(['activities' => function ($query) {
-            $query->whereIn('type', [3, 5]);
+            $query->whereIn('type', [3, 5]) // 3:着手, 5:完了
+            ->orderBy('created_at', 'asc');
         }])->orderBy('deadline', 'desc')
             ->get();
 

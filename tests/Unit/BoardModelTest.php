@@ -33,6 +33,22 @@ class BoardModelTest extends TestCase
             'user_id' => $user->id,
         ]);
 
+        // タスク作成のアクティビティを作成
+        Activity::factory()->create([
+            'task_id' => $tasks[0]->id,
+            'type' => 0, // 作成
+        ]);
+
+        Activity::factory()->create([
+            'task_id' => $tasks[1]->id,
+            'type' => 3, // 着手
+        ]);
+
+        Activity::factory()->create([
+            'task_id' => $tasks[2]->id,
+            'type' => 5, // 完了
+        ]);
+
         $notMatchedTasks = Task::factory()->count(4)->create([
             'status' => Task::STATUS[1]['label'],
             'user_id' => $user->id,
@@ -41,6 +57,9 @@ class BoardModelTest extends TestCase
         $matchedTasks = Board::getMatchedStatusTasks($user, [$statusNum]);
 
         $this->assertCount($taskNum, $matchedTasks);
+        $this->assertEmpty($matchedTasks[0]->activities);
+        $this->assertNotEmpty($matchedTasks[1]->activities);
+        $this->assertNotEmpty($matchedTasks[2]->activities);
     }
 
     /**
@@ -143,6 +162,21 @@ class BoardModelTest extends TestCase
             ]);
         }
 
+        Activity::factory()->create([
+            'task_id' => $tasks[0]->id,
+            'type' => 0, // 作成
+        ]);
+
+        Activity::factory()->create([
+            'task_id' => $tasks[1]->id,
+            'type' => 3, // 着手
+        ]);
+
+        $notMatchedTasks = Task::factory()->count(4)->create([
+            'status' => Task::STATUS[1]['label'],
+            'user_id' => $user->id,
+        ]);
+
         $notRecentlyCompletedTasks = Task::factory()->count(4)->create([
             'status' => Task::STATUS[3]['label'],
             'user_id' => $user->id,
@@ -160,6 +194,9 @@ class BoardModelTest extends TestCase
         $matchedTasks = Board::getRecentlyCompletedTasks($user);
 
         $this->assertCount($taskNum, $matchedTasks);
+
+        $this->assertCount(1, $matchedTasks[0]->activities); // 完了
+        $this->assertCount(2, $matchedTasks[1]->activities); // 完了、着手
     }
 
     /**
@@ -505,7 +542,6 @@ class BoardModelTest extends TestCase
             'id' => $previousInProgressTask->id,
             'status' => 2, // 保留中
         ]);
-
 
         $this->assertDatabaseHas('tasks', [
             'title' => 'new in progress task',

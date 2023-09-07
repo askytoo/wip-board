@@ -43,7 +43,10 @@ class Board extends Model
         return Task::query()
             ->where('user_id', $user->id)
             ->whereIn('status', $statuses)
-            ->oldest('deadline')->get();
+            ->with(['activities' => function ($query) {
+                $query->whereIn('type', [3, 5]) // 3:着手, 5:完了
+                    ->orderBy('created_at', 'asc');
+            }])->oldest('deadline')->get();
     }
 
     /**
@@ -80,7 +83,10 @@ class Board extends Model
                 $query->where('activities.created_at', '>=', $date)
                     ->where('activities.type', 5);
             })
-            ->get();
+            ->with(['activities' => function ($query) {
+                $query->whereIn('type', [3, 5]) // 3:着手, 5:完了
+                    ->orderBy('created_at', 'asc');
+            }])->oldest('deadline')->get();
 
         return $tasks;
     }
