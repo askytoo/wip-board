@@ -1,3 +1,5 @@
+import type { Activity } from "./activity";
+
 export type Task = {
     id: string;
     title: string;
@@ -10,6 +12,7 @@ export type Task = {
     is_today_task: { label: string; boolean: boolean };
     output: string;
     created_at: string;
+    activities: undefined | Activity[];
 };
 
 export type TaskStatus =
