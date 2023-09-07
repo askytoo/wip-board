@@ -20,9 +20,9 @@ class TaskController extends Controller
         $user = Auth::user();
 
         $tasks = $user->tasks()->with(['activities' => function ($query) {
-            $query->whereIn('type', [3, 5]) // 3:着手, 5:完了
-            ->orderBy('created_at', 'asc');
-        }])->orderBy('deadline', 'desc')
+            $query->orderBy('created_at', 'asc');
+        }])
+            ->orderBy('deadline', 'desc')
             ->get();
 
         $response = Inertia::render('Tasks/index', [
@@ -48,12 +48,6 @@ class TaskController extends Controller
         $user = Auth::user();
 
         $task = $user->tasks()->create($request->validated());
-
-        // 作成のアクティビティを記録
-        Activity::create([
-            'task_id' => $task->id,
-            'type' => 0,
-        ]);
 
         // 今日実行するタスクの追加のアクティビティを記録
         Activity::recordIsTodayTask($task);
@@ -89,12 +83,6 @@ class TaskController extends Controller
         $previousIsTodayTask = $task->is_today_task['boolean'];
 
         $task->update($validated);
-
-        // 更新のアクティビティを記録
-        Activity::create([
-            'task_id' => $task->id,
-            'type' => 6,
-        ]);
 
         // 今日実行するタスクの追加・削除のアクティビティを記録
         Activity::recordIsTodayTask($task, $previousIsTodayTask);

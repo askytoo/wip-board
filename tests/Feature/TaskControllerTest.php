@@ -33,7 +33,7 @@ class TaskControllerTest extends TestCase
         // 着手のアクティビティを記録
         Activity::factory()->create([
             'task_id' => $tasks[0]->id,
-            'type' => 3, //着手
+            'type' => 2, //着手
             'created_at' => Carbon::now()->addDay(1),
         ]);
 
@@ -114,14 +114,11 @@ class TaskControllerTest extends TestCase
             'output' => 'test output',
         ]);
 
+
+        // 今日のタスクに追加のアクティビティが記録されていることを確認
         $this->assertDatabaseHas('activities', [
             'task_id' => Task::first()->id,
             'type' => 0,
-        ]);
-
-        $this->assertDatabaseHas('activities', [
-            'task_id' => Task::first()->id,
-            'type' => 1,
         ]);
     }
 
@@ -219,6 +216,7 @@ class TaskControllerTest extends TestCase
             'id' => $task->id,
         ]);
 
+        // タスクに紐づくアクティビティが削除されていることを確認
         $this->assertDatabaseMissing('activities', [
             'task_id' => $task->id,
         ]);
@@ -288,16 +286,10 @@ class TaskControllerTest extends TestCase
             'output' => 'test output',
         ]);
 
-        // 更新アクティビティの確認
+        // 今日のタスクに追加したアクティビティを確認する
         $this->assertDatabaseHas('activities', [
             'task_id' => $task->id,
-            'type' => 6,
-        ]);
-
-        // 今日のタスクに追加した場合は、追加アクティビティも確認する
-        $this->assertDatabaseHas('activities', [
-            'task_id' => $task->id,
-            'type' => 1,
+            'type' => 0,
         ]);
 
         // 今日のタスクから削除した場合を確認する
@@ -313,9 +305,10 @@ class TaskControllerTest extends TestCase
                 'output' => 'test output',
             ]);
 
+        // 今日のタスクから削除したアクティビティを確認する
         $this->assertDatabaseHas('activities', [
             'task_id' => $task->id,
-            'type' => 2,
+            'type' => 1,
         ]);
 
     }

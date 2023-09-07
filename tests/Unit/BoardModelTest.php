@@ -33,15 +33,9 @@ class BoardModelTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        // タスク作成のアクティビティを作成
-        Activity::factory()->create([
-            'task_id' => $tasks[0]->id,
-            'type' => 0, // 作成
-        ]);
-
         Activity::factory()->create([
             'task_id' => $tasks[1]->id,
-            'type' => 3, // 着手
+            'type' => 2, // 着手
         ]);
 
         Activity::factory()->create([
@@ -163,13 +157,8 @@ class BoardModelTest extends TestCase
         }
 
         Activity::factory()->create([
-            'task_id' => $tasks[0]->id,
-            'type' => 0, // 作成
-        ]);
-
-        Activity::factory()->create([
             'task_id' => $tasks[1]->id,
-            'type' => 3, // 着手
+            'type' => 2, // 着手
         ]);
 
         $notMatchedTasks = Task::factory()->count(4)->create([

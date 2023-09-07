@@ -140,7 +140,7 @@ class BoardControllerTest extends TestCase
 
         $this->assertDatabaseHas('activities', [
             'task_id' => $task->id,
-            'type' => 1,
+            'type' => 0,
         ]);
     }
 
@@ -205,7 +205,7 @@ class BoardControllerTest extends TestCase
 
         $this->assertDatabaseHas('activities', [
             'task_id' => $task->id,
-            'type' => 2,
+            'type' => 1,
         ]);
     }
 
@@ -270,7 +270,41 @@ class BoardControllerTest extends TestCase
 
         $this->assertDatabaseHas('activities', [
             'task_id' => $task->id,
-            'type' => 3,
+            'type' => 2,
+        ]);
+    }
+
+    /**
+     * @test
+     *
+     * @group boardController
+     *
+     * @description 保留中のタスクを進行中にすることができることを確認する
+     */
+    public function test_can_put_in_progress_task_from_on_holding(): void
+    {
+        $user = User::factory()->create();
+
+        $task = Task::factory()->create([
+            'user_id' => $user->id,
+            'is_today_task' => true,
+            'status' => Task::STATUS[$this->onHoldStatusNum]['label'],
+        ]);
+
+        $response = $this->actingAs($user)
+            ->withSession(['banned' => false])
+            ->patch(route('boards.putInProgressTask', $task->id), [
+                'status' => Task::STATUS[$this->inProgressStatusNum]['label'],
+            ]);
+
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task->id,
+            'status' => $this->inProgressStatusNum,
+        ]);
+
+        $this->assertDatabaseHas('activities', [
+            'task_id' => $task->id,
+            'type' => 3,  // 再開
         ]);
     }
 

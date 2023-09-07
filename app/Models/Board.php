@@ -44,9 +44,9 @@ class Board extends Model
             ->where('user_id', $user->id)
             ->whereIn('status', $statuses)
             ->with(['activities' => function ($query) {
-                $query->whereIn('type', [3, 5]) // 3:着手, 5:完了
-                    ->orderBy('created_at', 'asc');
-            }])->oldest('deadline')->get();
+                $query->orderBy('created_at', 'asc');
+            }])
+            ->oldest('deadline')->get();
     }
 
     /**
@@ -61,6 +61,9 @@ class Board extends Model
             ->where('user_id', $user->id)
             ->where('status', 0) // 未着手
             ->where('is_today_task', true)
+            ->with(['activities' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }])
             ->oldest('deadline')->get();
     }
 
@@ -84,8 +87,7 @@ class Board extends Model
                     ->where('activities.type', 5);
             })
             ->with(['activities' => function ($query) {
-                $query->whereIn('type', [3, 5]) // 3:着手, 5:完了
-                    ->orderBy('created_at', 'asc');
+                $query->orderBy('created_at', 'asc');
             }])->oldest('deadline')->get();
 
         return $tasks;
@@ -110,6 +112,9 @@ class Board extends Model
             ->where('deadline', '<=', $date)
             ->where('deadline', '>', Carbon::now())
             ->where('is_today_task', false)
+            ->with(['activities' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }])
             ->oldest('deadline')->get();
     }
 
@@ -126,6 +131,9 @@ class Board extends Model
             ->where('status', 0) // 未着手
             ->where('deadline', '<', Carbon::now())
             ->where('is_today_task', false)
+            ->with(['activities' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }])
             ->oldest('deadline')->get();
     }
 

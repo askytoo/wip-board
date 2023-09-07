@@ -51,7 +51,7 @@ class BoardController extends Controller
         // 今日実行するタスクに追加のアクティビティを記録
         Activity::create([
             'task_id' => $task->id,
-            'type' => 1,
+            'type' => 0,
         ]);
 
     }
@@ -76,7 +76,7 @@ class BoardController extends Controller
         // 今日実行するタスクから削除のアクティビティを記録
         Activity::create([
             'task_id' => $task->id,
-            'type' => 2,
+            'type' => 1,
         ]);
     }
 
@@ -93,15 +93,15 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
+        $previousTask = Task::find($task->id);
+
         if ($request->validated()) {
             Board::putInProgressTask($user, $task);
         }
 
-        // 着手のアクティビティを記録
-        Activity::create([
-            'task_id' => $task->id,
-            'type' => 3,
-        ]);
+
+        // 進行中に移したアクティビティを記録
+        Activity::recordInProgressTask($previousTask);
     }
 
     public function putOnHoldTask(PutOnHoldTaskRequest $request, Task $task): void
