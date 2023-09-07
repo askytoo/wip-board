@@ -46,7 +46,7 @@ class Board extends Model
             ->with(['activities' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             }])
-            ->oldest('deadline')->get();
+            ->orderBy('deadline', 'asc')->get();
     }
 
     /**
@@ -64,7 +64,7 @@ class Board extends Model
             ->with(['activities' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             }])
-            ->oldest('deadline')->get();
+            ->orderBy('deadline', 'asc')->get();
     }
 
     /**
@@ -87,8 +87,9 @@ class Board extends Model
                     ->where('activities.type', 5);
             })
             ->with(['activities' => function ($query) {
-                $query->orderBy('created_at', 'asc');
-            }])->oldest('deadline')->get();
+                $query->where('type', 5)
+                    ->orderBy('created_at', 'asc');
+            }])->get();
 
         return $tasks;
     }
@@ -115,7 +116,7 @@ class Board extends Model
             ->with(['activities' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             }])
-            ->oldest('deadline')->get();
+            ->orderBy('deadline', 'asc')->get();
     }
 
     /**
@@ -134,7 +135,7 @@ class Board extends Model
             ->with(['activities' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             }])
-            ->oldest('deadline')->get();
+            ->orderBy('deadline', 'asc')->get();
     }
 
     /**

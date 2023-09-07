@@ -100,8 +100,8 @@
         }
     };
 
-import getStartedAt from "@/utils/getStartedAtFromTask";
-import getCompletedAt from "@/utils/getCompletedAtFromTask";
+    import getStartedAt from "@/utils/getStartedAtFromTask";
+    import getCompletedAt from "@/utils/getCompletedAtFromTask";
 </script>
 
 <div class="border-white px-3 h-full pb-12">

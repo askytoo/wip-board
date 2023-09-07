@@ -18,6 +18,17 @@
 
     $: noStartedTasks = [...overDeadlineTasks, ...recentDeadlineTasks];
 
+    $: {
+        // recentlyCompletedTasksをtassk.activitiesのtypeが"完了"のオブジェクトのcreated_atでソートする
+        recentlyCompletedTasks.sort((a, b) => {
+            if (a.activities[0].created_at < b.activities[0].created_at) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
+    }
+
     let draggingItem = {} as Task;
 
     // 未着手は今日のタスクからのみドロップ可能
