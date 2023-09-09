@@ -18,16 +18,13 @@
 
     $: noStartedTasks = [...overDeadlineTasks, ...recentDeadlineTasks];
 
-    $: {
-        // recentlyCompletedTasksをtassk.activitiesのtypeが"完了"のオブジェクトのcreated_atでソートする
-        recentlyCompletedTasks.sort((a, b) => {
-            if (a.activities[0].created_at < b.activities[0].created_at) {
-                return 1;
-            } else {
-                return -1;
-            }
-        });
-    }
+    $: sortedRecentlyCompletedTasks = recentlyCompletedTasks.sort((a, b) => {
+        if (a.activities[0].created_at < b.activities[0].created_at) {
+            return 1;
+        } else {
+            return -1;
+        }
+    });
 
     let draggingItem = {} as Task;
 
@@ -211,7 +208,7 @@
             <div class="w-1/4 border-l border-r">
                 <DropDownArea
                     areaName="完了"
-                    tasks={recentlyCompletedTasks}
+                    tasks={sortedRecentlyCompletedTasks}
                     bind:draggingTask={draggingItem}
                     dropFromOthersDisabled={!canDropRecentlyCompletedTasksAreaDisabled}
                     bind:editing

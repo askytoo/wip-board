@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
@@ -45,5 +46,6 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::patch('/boards/putInProgressTask/{task}', [BoardController::class, 'putInProgressTask'])->name('boards.putInProgressTask');
     Route::patch('/boards/putOnHoldTask/{task}', [BoardController::class, 'putOnHoldTask'])->name('boards.putOnHoldTask');
     Route::patch('/boards/putCompletedTask/{task}', [BoardController::class, 'putCompletedTask'])->name('boards.putCompletedTask');
+    Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
 });
 require __DIR__.'/auth.php';
