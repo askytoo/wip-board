@@ -48,6 +48,12 @@
                             >
                                 Tasks
                             </NavLink>
+                            <NavLink
+                                href={route("activities.index")}
+                                active={route().current("activities.index")}
+                            >
+                                Activities
+                            </NavLink>
                         </div>
                     </div>
 

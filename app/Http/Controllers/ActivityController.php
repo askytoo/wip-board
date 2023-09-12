@@ -12,15 +12,17 @@ class ActivityController extends Controller
     {
         $user = Auth::user();
 
-        $tasks = $user->tasks()->with(['activities' => function ($query) {
+        $completedTasks = $user->tasks()->whereHas('activities', function ($query) {
+            $query->where('type', 5);
+        })
+            ->with(['activities' => function ($query) {
             $query->orderBy('created_at', 'asc');
         }])
             ->orderBy('created_at', 'desc')
             ->get();
 
-
         return Inertia::render('Activities/index', [
-            'tasks' => fn () => $tasks,
+            'completedTasks' => fn () => $completedTasks,
         ]);
     }
 }
