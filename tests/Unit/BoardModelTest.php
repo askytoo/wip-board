@@ -156,6 +156,7 @@ class BoardModelTest extends TestCase
             ]);
         }
 
+        // 取得されないアクティビティの作成( 完了のアクティビティ以外は取得されない )
         Activity::factory()->create([
             'task_id' => $tasks[1]->id,
             'type' => 2, // 着手
@@ -185,7 +186,7 @@ class BoardModelTest extends TestCase
         $this->assertCount($taskNum, $matchedTasks);
 
         $this->assertCount(1, $matchedTasks[0]->activities); // 完了
-        $this->assertCount(2, $matchedTasks[1]->activities); // 完了、着手
+        $this->assertCount(1, $matchedTasks[1]->activities); // 完了のみ
     }
 
     /**
