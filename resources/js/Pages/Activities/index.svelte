@@ -3,11 +3,11 @@
     import type { Task } from "@/types/task";
     import filterTasksByCompletedAt from "@/utils/filterTasksByCompletedAt";
     import sortTasksByCompletedAt from "@/utils/sortTasksByCompletedAt";
-    import TaskAchievementBarChart from "@/Components/Activities/TaskAchievementBarChart.svelte";
     import DeadlineCompletionDonutChart from "@/Components/Activities/DeadlineCompletionDonutChart.svelte";
     import EstimateVsActualEffortDonutChart from "@/Components/Activities/EstimateVsActualEffortDonutChart.svelte";
     import DirectCompletionDonutChart from "@/Components/Activities/DirectCompletionDonutChart.svelte";
     import ExecutionDonutChart from "@/Components/Activities/ExecutionDonutChart.svelte";
+    import CompletionHeatMap from "@/Components/Activities/CompletionHeatMap.svelte";
     export let completedTasks: Task[];
 
     // デフォルトの日付は今日の7日前のYYYY/MM/DDに設定
@@ -49,28 +49,38 @@
     <div
         class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-full pb-48 overflow-auto hidden-scrollbar"
     >
-        <div class="md:columns-2 sm:columns-1 pt-4">
-            <div class="column pr-3">
-                <DeadlineCompletionDonutChart tasks={sortedTasks} />
+        <div class="md:columns-2 sm:columns-1">
+            <div class="column pb-4">
+                <div class="p-4 border border-gray-200 dark:border-gray-800">
+                    <DeadlineCompletionDonutChart tasks={sortedTasks} />
+                </div>
             </div>
-            <div class="column pl-3">
-                <EstimateVsActualEffortDonutChart tasks={sortedTasks} />
+            <div class="column pb-4">
+                <div class="p-4 border border-gray-200 dark:border-gray-800">
+                    <EstimateVsActualEffortDonutChart tasks={sortedTasks} />
+                </div>
             </div>
         </div>
-        <div class="md:columns-2 sm:columns-1 pt-8">
-            <div class="column pr-3">
-                <DirectCompletionDonutChart tasks={sortedTasks} />
+        <div class="md:columns-2 sm:columns-1">
+            <div class="column pb-4">
+                <div class="p-4 border border-gray-200 dark:border-gray-800">
+                    <DirectCompletionDonutChart tasks={sortedTasks} />
+                </div>
             </div>
-            <div class="column pl-3">
-                <ExecutionDonutChart tasks={sortedTasks} />
+            <div class="column pb-4">
+                <div class="p-4 border border-gray-200 dark:border-gray-800">
+                    <ExecutionDonutChart tasks={sortedTasks} />
+                </div>
             </div>
         </div>
 
-        <TaskAchievementBarChart
-            tasks={sortedTasks}
-            {startDate}
-            {endDate}
-            days={1}
-        />
-    </div>
-</AuthenticatedLayout>
+        <div class="border border-gray-200 dark:border-gray-800">
+            <div class="p-4">
+                <div class=" dark:text-white font-semibold text-[16px]">
+                    タスク完了数
+                </div>
+                <CompletionHeatMap tasks={sortedTasks} />
+            </div>
+        </div>
+    </div></AuthenticatedLayout
+>
