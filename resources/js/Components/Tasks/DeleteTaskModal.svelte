@@ -78,6 +78,7 @@
                 classes="mt-1 block w-3/4"
                 required
                 autofocus
+                disabled={$form.processing}
             />
 
             <InputError message={errorMessage} />
