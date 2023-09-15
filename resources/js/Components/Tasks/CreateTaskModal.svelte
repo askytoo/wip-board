@@ -7,7 +7,6 @@
     import LoadingSpinner from "../LoadingSpinner.svelte";
     import toast from "svelte-french-toast";
     import getTodayDate from "../../utils/getTodayDate";
-    import roundUpTime from "../../utils/roundUpTime";
     import Form from "./Form.svelte";
 
     export let creating = false;
@@ -18,13 +17,13 @@
 
     const today = getTodayDate();
 
-    const step = 900;
-    const now = roundUpTime(step, new Date());
-
     let form = useForm({
         title: "",
         deadline_date: today,
-        deadline_time: now,
+        deadline_time: new Date().toLocaleTimeString("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+        }),
         deadline: "",
         estimated_effort: 30,
         output: "",

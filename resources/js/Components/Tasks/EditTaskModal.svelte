@@ -18,8 +18,6 @@
         editingTask.set({} as Task);
     };
 
-    const step = 900;
-
     const form = useForm({
         title: "",
         deadline_date: "",

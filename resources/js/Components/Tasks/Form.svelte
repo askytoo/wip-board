@@ -2,15 +2,12 @@
     import TextInput from "../TextInput.svelte";
     import InputLabel from "../InputLabel.svelte";
     import InputError from "../InputError.svelte";
-    import OptionTime from "../OptionTime.svelte";
     import Switch from "svelte-switch";
-    import roundUpTime from "@/utils/roundUpTime";
+    import SveltyPicker, { config } from "svelty-picker";
+    import { jp } from "svelty-picker/i18n";
 
     export let form;
     export let onSubmit = () => {};
-
-    const step = 900;
-    const now = roundUpTime(step, new Date());
 
     function handleChange(e: CustomEvent) {
         const { checked } = e.detail;
@@ -45,32 +42,40 @@
         <div class="flex">
             <InputLabel for="deadline_date" value="期日日" classes="sr-only" />
 
-            <TextInput
+            <SveltyPicker
                 id="deadline_date"
+                mode="date"
+                manualInput={true}
+                format="yyyy-mm-dd"
+                displayFormat="yyyy/mm/dd"
                 bind:value={$form.deadline_date}
-                type="date"
-                classes="mt-1 block"
+                inputClasses="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 mr-4"
+                clearBtn={false}
+                todayBtn={false}
                 required
                 disabled={$form.processing}
+                i18n={jp}
             />
 
-            <div class="w-4" />
             <InputLabel
                 for="deadline_time"
                 value="期日時刻"
                 classes="sr-only"
             />
 
-            <select
+            <SveltyPicker
                 id="deadline_time"
+                mode="time"
+                manualInput={true}
+                format="hh:ii"
+                displayFormat="hh:ii"
                 bind:value={$form.deadline_time}
-                class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
-                on:change={(e) => {}}
+                inputClasses="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1"
+                clearBtn={false}
                 required
                 disabled={$form.processing}
-            >
-                <OptionTime selectedOption={now} {step} />
-            </select>
+                i18n={jp}
+            />
         </div>
         <InputError message={$form.errors.deadline} />
     </div>

@@ -57,7 +57,7 @@
         {#if show}
             <div
                 transition:fade={{ duration: 200 }}
-                class="mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto {maxWidthClass}"
+                class="mt-10 mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto {maxWidthClass}"
             >
                 {#if show}
                     <slot />
