@@ -105,12 +105,12 @@
 </script>
 
 <div class="border-white px-3 h-full pb-12">
-    <div class="text-2xl font-bold text-center text-gray-200 pb-4">
+    <div class="text-2xl font-bold text-center text-gray-800 dark:text-gray-200 pb-4">
         {areaName}({tasks?.length})
     </div>
 
     <div
-        class="mx-auto h-full overflow-y-auto hidden-scrollbar"
+        class="mx-auto h-full overflow-y-auto hidden-scrollbar border border-gray-700 shadow-xl shadow-gray-950 rounded-lg py-2"
         style="min-height: 10rem;"
         use:dndzone={{
             items: tasks,
