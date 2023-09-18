@@ -1,5 +1,6 @@
 <script lang="ts">
     import Switch from "svelte-switch";
+    import axios from "axios";
     import { router } from "@inertiajs/svelte";
     import toast from "svelte-french-toast";
     import type { Task } from "../../types/task";
@@ -7,34 +8,41 @@
     export let task: Task;
     export let isTodayTask: boolean;
 
-    const enqueueTodayTask = (checked: boolean) => {
-        router.patch(
-            route("boards.enqueueTodayTask", { task: task.id }),
+    const enqueueTodayTask = async () => {
+        toast.promise(
+            axios.patch(route("boards.enqueueTodayTask", { task: task.id }), {
+                is_today_task: true,
+            }),
             {
-                is_today_task: checked,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success("今日のタスクに追加しました");
+                loading: "保存中...",
+                success: () => {
+                    task.is_today_task.boolean = true;
+                    return "今日のタスクに追加しました";
                 },
-                onError: (errors) => {
+                error: (errors) => {
                     console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
     };
 
-    const dequeueTodayTask = (checked: boolean) => {
-        router.patch(
-            route("boards.dequeueTodayTask", { task: task.id }),
+    const dequeueTodayTask = () => {
+        toast.promise(
+            axios.patch(route("boards.dequeueTodayTask", { task: task.id }), {
+                is_today_task: false,
+            }),
             {
-                is_today_task: checked,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: (errors) => {
-                    toast.success("今日のタスクから削除しました");
+                loading: "保存中...",
+                success: () => {
+                    task.is_today_task.boolean = false;
+                    return "今日のタスクから削除しました";
+                },
+                error: (errors) => {
+                    console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
@@ -45,9 +53,9 @@
         const { checked } = e.detail;
         isTodayTask = checked;
         if (checked) {
-            enqueueTodayTask(checked);
+            enqueueTodayTask();
         } else {
-            dequeueTodayTask(checked);
+            dequeueTodayTask();
         }
     }
 </script>

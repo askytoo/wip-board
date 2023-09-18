@@ -21,15 +21,17 @@ class BoardController extends Controller
         $user = Auth::user();
 
         return Inertia::render('Boards/index', [
-            'todayTasks' => Board::getTodayTasks($user),
-            'onHoldTasks' => Board::getMatchedStatusTasks($user, [2]),
-            'inProgressTask' => Board::getMatchedStatusTasks($user, [1]),
-            'recentDeadlineTasks' => Board::getRecentDeadlineTasks($user),
-            'recentlyCompletedTasks' => Board::getRecentlyCompletedTasks($user),
-            'overDeadlineTasks' => Board::getOverDeadlineTasks($user),
-            'statuses' => Task::STATUS,
+            'todayTasks' => fn () => Board::getTodayTasks($user),
+            'onHoldTasks' => fn () => Board::getMatchedStatusTasks($user, [2]),
+            'inProgressTask' => fn () => Board::getMatchedStatusTasks($user, [1]),
+            'recentDeadlineTasks' => fn () => Board::getRecentDeadlineTasks($user),
+            'recentlyCompletedTasks' => fn () => Board::getRecentlyCompletedTasks($user),
+            'overDeadlineTasks' => fn () => Board::getOverDeadlineTasks($user),
         ]);
     }
+
+
+    /** 以降のメソッドはapiで呼び出す(inettiajsは使わない) */
 
     /**
      * タスクを今日実行するタスクに追加する
@@ -98,7 +100,6 @@ class BoardController extends Controller
         if ($request->validated()) {
             Board::putInProgressTask($user, $task);
         }
-
 
         // 進行中に移したアクティビティを記録
         Activity::recordInProgressTask($previousTask);

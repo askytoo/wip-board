@@ -41,11 +41,6 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth', 'verified')->group(function () {
     Route::resource('tasks', TaskController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/boards', [BoardController::class, 'index'])->name('boards.index');
-    Route::patch('/boards/enqueueTodayTask/{task}', [BoardController::class, 'enqueueTodayTask'])->name('boards.enqueueTodayTask');
-    Route::patch('/boards/dequeueTodayTask/{task}', [BoardController::class, 'dequeueTodayTask'])->name('boards.dequeueTodayTask');
-    Route::patch('/boards/putInProgressTask/{task}', [BoardController::class, 'putInProgressTask'])->name('boards.putInProgressTask');
-    Route::patch('/boards/putOnHoldTask/{task}', [BoardController::class, 'putOnHoldTask'])->name('boards.putOnHoldTask');
-    Route::patch('/boards/putCompletedTask/{task}', [BoardController::class, 'putCompletedTask'])->name('boards.putCompletedTask');
     Route::get('/activities', [ActivityController::class, 'index'])->name('activities.index');
 });
 require __DIR__.'/auth.php';

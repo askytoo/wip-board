@@ -90,7 +90,6 @@ class BoardControllerTest extends TestCase
                     ->has('recentDeadlineTasks', $recentDeadlineTaskNum)
                     ->has('recentlyCompletedTasks', $recentlyCompletedTaskNum)
                     ->has('overDeadlineTasks', $overDeadlineTaskNum)
-                    ->has('statuses', 4),
             );
 
         // 他のユーザーのタスクは表示されない
@@ -106,7 +105,6 @@ class BoardControllerTest extends TestCase
                     ->has('recentDeadlineTasks', 0)
                     ->has('recentlyCompletedTasks', 0)
                     ->has('overDeadlineTasks', 0)
-                    ->has('statuses', 4),
             );
     }
 
@@ -132,6 +130,7 @@ class BoardControllerTest extends TestCase
             ->patch(route('boards.enqueueTodayTask', $task->id), [
                 'is_today_task' => true,
             ]);
+
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
