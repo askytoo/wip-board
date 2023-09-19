@@ -29,8 +29,7 @@
     });
 
     // 進行中のタスクを必ず1つにするために
-    // 進行中のタスクと保留中のタスクは、storeに保存する
-    $: inProgressAreaTasks.set(inProgressTask);
+    // 保留中のタスクは、storeに保存する
     $: onHoldAreaTasks.set(onHoldTasks);
 
     let draggingItem = {} as Task;
@@ -45,7 +44,7 @@
     $: canDropTodayTasksAreaDisabled = draggingItem.status?.label === "未着手";
     $: canDropInProgressTaskAreaDisabled =
         (draggingItem.status?.label === "未着手" &&
-            draggingItem.is_today_task?.boolean === true) ||
+            draggingItem.is_today_task === true) ||
         draggingItem.status?.label === "保留中";
     $: canDropOnHoldTaskAreaDisabled = draggingItem.status?.label === "進行中";
     $: canDropRecentlyCompletedTasksAreaDisabled =
@@ -82,7 +81,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.is_today_task = true;
+                    task = { ...task, is_today_task: true };
                     return "今日のタスクに追加しました";
                 },
                 error: (errors) => {
@@ -102,7 +101,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.is_today_task = false;
+                    task = { ...task, is_today_task: false };
                     return "今日のタスクから削除しました";
                 },
                 error: (errors) => {
@@ -228,7 +227,7 @@
                 <div bind:this={upperContainer} class="min-h-80 pb-5">
                     <DropDownArea
                         areaName="進行中"
-                        tasks={$inProgressAreaTasks}
+                        tasks={inProgressTask}
                         bind:draggingTask={draggingItem}
                         dropFromOthersDisabled={!canDropInProgressTaskAreaDisabled}
                         bind:editing

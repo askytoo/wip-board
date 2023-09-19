@@ -29,14 +29,11 @@
             return {
                 ...task,
                 status: {
-                    ...task.status,
                     label: "保留中",
                 },
             };
         });
-        console.log("before", $onHoldAreaTasks);
         onHoldAreaTasks.set([...newTasks, ...$onHoldAreaTasks.filter((task) => task.id !== draggingTaskId)]);
-        console.log("after", $onHoldAreaTasks);
     };
 
     // onDragを実行するためのフラグ
@@ -85,9 +82,11 @@
         if (updated === false) {
             tasks = e.detail.items;
         }
+
         // フラグの初期化
         isFromOthers = true;
         isEnter = false;
+        console.log(areaName, tasks);
     };
 
     import { editingTask } from "@/stores";
