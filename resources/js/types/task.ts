@@ -7,17 +7,17 @@ export type Task = {
     description: string;
     status: TaskStatus;
     estimated_effort: number;
-    is_today_task: { label: string; boolean: boolean };
+    is_today_task: boolean;
     output: string;
     created_at: string;
     activities: Activity[];
 };
 
 export type TaskStatus =
-    | { label: "未着手"; class: "" }
-    | { label: "保留中"; class: "orange-500" }
-    | { label: "進行中"; class: "green-500" }
-    | { label: "完了"; class: "blue-500" };
+    | { label: "未着手"}
+    | { label: "保留中"}
+    | { label: "進行中"}
+    | { label: "完了"}
 
 export type TaskInput = {
     title: string;

@@ -7,50 +7,88 @@
     import Delete from "svelte-material-icons/Delete.svelte";
     import ContentCopy from "svelte-material-icons/ContentCopy.svelte";
 
-    const flipDurationMs = 300;
-
-    export const dndConsider = (e: CustomEvent<DndEvent<Task>>) => {
-        tasks = e.detail.items;
-    };
-
-    // const dndFinalizeInProgressTask = (e: CustomEvent<DndEvent<Task>>) => {
-    //     // ドロップされたタスクが増えた場合のみonDropを実行する
-    //     if (
-    //         e.detail.info.trigger === "droppedIntoZone" &&
-    //         previousTasksNumber < e.detail.items.length
-    //     ) {
-    //         if (previousTasksNumber > 0) {
-    //             const answer: boolean = confirm(
-    //                 "進行中にできるタスクは1つだけです。他のタスクを保留中に移動しますか？"
-    //             );
-    //
-    //             if (!answer) {
-    //                 toast.error("進行中に移動するのをキャンセルしました");
-    //                 return;
-    //             }
-    //         }
-    //
-    //         onDrop(draggingTask);
-    //     }
-    // };
-
-    export const dndFinalize = (e: CustomEvent<DndEvent<Task>>) => {
-        // ドロップされたタスクが増えた場合のみonDropを実行する
-        if (
-            e.detail.info.trigger === "droppedIntoZone" &&
-            previousTasksNumber < e.detail.items.length
-        ) {
-            onDrop(draggingTask);
-        }
-        tasks = e.detail.items;
-    };
-
     export let draggingTask: Task;
     export let tasks: Task[];
-    export let previousTasksNumber: number;
     export let areaName: string;
     export let dropFromOthersDisabled = false;
     export let onDrop: (task: Task) => void;
+
+    const flipDurationMs = 300;
+
+    // 進行中のエリアにドロップされた場合は、
+    // ドロップされたタスク以外を保留中のエリアに移動させる
+    import { onHoldAreaTasks } from "@/stores";
+    const onDropToInProgressArea = (tasks: Task[]) => {
+        const draggingTaskId = draggingTask.id;
+        const _newTasks = tasks.filter(
+            (task) =>
+                task.id !== draggingTaskId &&
+                task.id !== "id:dnd-shadow-placeholder-0000"
+        );
+        const newTasks = _newTasks.map((task) => {
+            return {
+                ...task,
+                status: {
+                    ...task.status,
+                    label: "保留中",
+                },
+            };
+        });
+        console.log("before", $onHoldAreaTasks);
+        onHoldAreaTasks.set([...newTasks, ...$onHoldAreaTasks.filter((task) => task.id !== draggingTaskId)]);
+        console.log("after", $onHoldAreaTasks);
+    };
+
+    // onDragを実行するためのフラグ
+    let isFromOthers = true;
+    let isEnter = false;
+
+    const dndConsider = (e: CustomEvent<DndEvent<Task>>) => {
+        // ドラッグしているタスクが自分のエリアからの場合
+        if (e.detail.info.trigger === "dragStarted") {
+            isFromOthers = false;
+        }
+
+        // ドラッグしているタスクが自分のエリアに入った場合
+        if (e.detail.info.trigger === "draggedEntered") {
+            isEnter = true;
+        }
+
+        // ドラッグしているタスクが自分のエリアから出た場合
+        if (e.detail.info.trigger === "draggedLeft") {
+            isEnter = false;
+        }
+
+        tasks = e.detail.items;
+    };
+
+    const dndFinalize = (e: CustomEvent<DndEvent<Task>>) => {
+        let updated = false;
+        // ドラッグしているタスクが他のエリアのもので、自分のエリアに入った場合にonDropを実行する
+        if (
+            isFromOthers &&
+            isEnter &&
+            e.detail.info.trigger === "droppedIntoZone"
+        ) {
+            // dbに保存する処理
+            onDrop(draggingTask);
+
+            // ドロップされたエリアが進行中のエリアの場合は、
+            // ドロップされたタスク以外を保留中のエリアに移動させる
+            if (areaName === "進行中") {
+                onDropToInProgressArea(tasks);
+                tasks = [draggingTask];
+                updated = true;
+            }
+        }
+
+        if (updated === false) {
+            tasks = e.detail.items;
+        }
+        // フラグの初期化
+        isFromOthers = true;
+        isEnter = false;
+    };
 
     import { editingTask } from "@/stores";
 
@@ -105,7 +143,9 @@
 </script>
 
 <div class="border-white px-3 h-full pb-12">
-    <div class="text-2xl font-bold text-center text-gray-800 dark:text-gray-200 pb-4">
+    <div
+        class="text-2xl font-bold text-center text-gray-800 dark:text-gray-200 pb-4"
+    >
         {areaName}({tasks?.length})
     </div>
 

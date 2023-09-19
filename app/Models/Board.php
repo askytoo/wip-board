@@ -146,7 +146,7 @@ class Board extends Model
     public static function enqueueTodayTask(Task $task): bool
     {
         // 今日実行するタスクに追加済みのタスクは追加できない
-        if ($task->is_today_task['boolean']) {
+        if ($task->is_today_task) {
             return false;
         }
 
@@ -170,12 +170,12 @@ class Board extends Model
     public static function dequeueTodayTask(Task $task): bool
     {
         // 今日実行するタスクでないタスクは外せない
-        if (! $task->is_today_task['boolean']) {
+        if (! $task->is_today_task) {
             return false;
         }
 
         // 未着手のタスクのみ外せる
-        if (! $task->is_today_task['boolean']) {
+        if (! $task->is_today_task) {
             return false;
         }
 
@@ -194,7 +194,7 @@ class Board extends Model
     public static function putInProgressTask(User $user, Task $task): bool
     {
         // 今日実行するタスクのみ進行中にできる
-        if (! $task->is_today_task['boolean']) {
+        if (! $task->is_today_task) {
             return false;
         }
 

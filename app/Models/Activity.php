@@ -77,13 +77,13 @@ class Activity extends Model
      */
     public static function recordIsTodayTask(Task $task, bool $previousIsTodayTask = false): void
     {
-        if (! $previousIsTodayTask && $task->is_today_task['boolean']) {
+        if (! $previousIsTodayTask && $task->is_today_task) {
             // 今日実行するタスクに追加された場合
             Activity::create([
                 'task_id' => $task->id,
                 'type' => 0,
             ]);
-        } elseif ($previousIsTodayTask && ! $task->is_today_task['boolean']) {
+        } elseif ($previousIsTodayTask && ! $task->is_today_task) {
             // 今日実行するタスクから削除された場合
             Activity::create([
                 'task_id' => $task->id,

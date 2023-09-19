@@ -80,7 +80,7 @@ class TaskController extends Controller
 
         $validated = $request->validated();
 
-        $previousIsTodayTask = $task->is_today_task['boolean'];
+        $previousIsTodayTask = $task->is_today_task;
 
         $task->update($validated);
 

@@ -16,7 +16,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.is_today_task.boolean = true;
+                    task.is_today_task = true;
                     return "今日のタスクに追加しました";
                 },
                 error: (errors) => {
@@ -36,7 +36,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.is_today_task.boolean = false;
+                    task.is_today_task = false;
                     return "今日のタスクから削除しました";
                 },
                 error: (errors) => {

@@ -98,7 +98,7 @@
             filterFn: globalFilterFn,
         },
         {
-            accessorKey: "is_today_task.label",
+            accessorKey: "is_today_task",
             header: () => "今日のタスク",
             id: "is_today_task",
             cell: (info) => info.getValue(),

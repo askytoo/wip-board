@@ -36,15 +36,15 @@ class Task extends Model
      * @var array
      */
     public const STATUS = [
-        0 => ['label' => '未着手', 'class' => ''],
-        1 => ['label' => '進行中', 'class' => 'green-500'],
-        2 => ['label' => '保留中', 'class' => 'orange-500'],
-        3 => ['label' => '完了', 'class' => 'blue-500'],
+        0 => ['label' => '未着手'],
+        1 => ['label' => '進行中'],
+        2 => ['label' => '保留中'],
+        3 => ['label' => '完了'],
     ];
 
     public const IS_TODAY_TASK = [
-        0 => ['label' => '', 'boolean' => false],
-        1 => ['label' => '✅', 'boolean' => true],
+        0 => false,
+        1 => true
     ];
 
     /**
@@ -76,7 +76,6 @@ class Task extends Model
     {
         return new Attribute(
             get: function ($value) {
-                // labelの値を返す
                 return self::IS_TODAY_TASK[$value];
             },
         );

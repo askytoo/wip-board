@@ -8,6 +8,7 @@
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import PrimaryStyleButton from "@/Components/PrimaryStyleButton.svelte";
     import type { Task } from "@/types/task";
+    import { inProgressAreaTasks, onHoldAreaTasks } from "@/stores";
 
     export let overDeadlineTasks: Task[];
     export let recentDeadlineTasks: Task[];
@@ -18,6 +19,7 @@
 
     $: noStartedTasks = [...overDeadlineTasks, ...recentDeadlineTasks];
 
+    // 完了したタスクは完了日時でソートする
     $: sortedRecentlyCompletedTasks = recentlyCompletedTasks.sort((a, b) => {
         if (a.activities[0].created_at < b.activities[0].created_at) {
             return 1;
@@ -25,6 +27,11 @@
             return -1;
         }
     });
+
+    // 進行中のタスクを必ず1つにするために
+    // 進行中のタスクと保留中のタスクは、storeに保存する
+    $: inProgressAreaTasks.set(inProgressTask);
+    $: onHoldAreaTasks.set(onHoldTasks);
 
     let draggingItem = {} as Task;
 
@@ -63,27 +70,45 @@
 
     import { router } from "@inertiajs/svelte";
     import toast from "svelte-french-toast";
-    const enqueueTodayTask = (task: Task) => {
-        router.patch(
-            route("boards.enqueueTodayTask", { task: task.id }),
-            { is_today_task: true },
+    import LoadingSpinnerOverLay from "@/Components/LoadingSpinnerOverLay.svelte";
+    import axios from "axios";
+    let isProcessing = false;
+
+    const enqueueTodayTask = async (task: Task) => {
+        toast.promise(
+            axios.patch(route("boards.enqueueTodayTask", { task: task.id }), {
+                is_today_task: true,
+            }),
             {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success("今日のタスクに追加しました");
+                loading: "保存中...",
+                success: () => {
+                    task.is_today_task = true;
+                    return "今日のタスクに追加しました";
+                },
+                error: (errors) => {
+                    console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
     };
 
     const dequeueTodayTask = (task: Task) => {
-        router.patch(
-            route("boards.dequeueTodayTask", { task: task.id }),
-            { is_today_task: false },
+        toast.promise(
+            axios.patch(route("boards.dequeueTodayTask", { task: task.id }), {
+                is_today_task: false,
+            }),
             {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success("今日のタスクから削除しました");
+                loading: "保存中...",
+                success: () => {
+                    task.is_today_task = false;
+                    return "今日のタスクから削除しました";
+                },
+                error: (errors) => {
+                    console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
@@ -92,39 +117,60 @@
     // 進行中のタスクは1つだけにする
     // 進行中のタスクがすでにある場合は、他のタスクを保留中に移動する
     const putInProgressTask = (task: Task) => {
-        router.patch(
-            route("boards.putInProgressTask", { task: task.id }),
-            { status: "進行中" },
+        toast.promise(
+            axios.patch(route("boards.putInProgressTask", { task: task.id }), {
+                status: "進行中",
+            }),
             {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success("進行中に移動しました");
+                loading: "保存中...",
+                success: () => {
+                    task.status.label = "進行中";
+                    return "進行中に移動しました";
+                },
+                error: (errors) => {
+                    console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
     };
 
     const putOnHoldTask = (task: Task) => {
-        router.patch(
-            route("boards.putOnHoldTask", { task: task.id }),
-            { status: "保留中" },
+        toast.promise(
+            axios.patch(route("boards.putOnHoldTask", { task: task.id }), {
+                status: "保留中",
+            }),
             {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success("保留中に移動しました");
+                loading: "保存中...",
+                success: () => {
+                    task.status.label = "保留中";
+                    return "保留中に移動しました";
+                },
+                error: (errors) => {
+                    console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
     };
 
     const putCompletedTask = (task: Task) => {
-        router.patch(
-            route("boards.putCompletedTask", { task: task.id }),
-            { status: "完了" },
+        toast.promise(
+            axios.patch(route("boards.putCompletedTask", { task: task.id }), {
+                status: "完了",
+            }),
             {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success("完了に移動しました");
+                loading: "保存中...",
+                success: () => {
+                    task.status.label = "完了";
+                    return "完了に移動しました";
+                },
+                error: (errors) => {
+                    console.log(errors);
+                    router.reload();
+                    return "サーバーエラーが発生しました。時間をおいて再度お試しください。";
                 },
             }
         );
@@ -132,6 +178,9 @@
 </script>
 
 <AuthenticatedLayout>
+    {#if isProcessing}
+        <LoadingSpinnerOverLay />
+    {/if}
     <svelte:fragment slot="header">
         <h2
             class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
@@ -141,7 +190,7 @@
     </svelte:fragment>
 
     <!-- <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8"> -->
-    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-full pb-48">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 h-full pb-[13rem]">
         <PrimaryStyleButton
             type="button"
             onClick={() => (creating = true)}
@@ -151,7 +200,7 @@
             <span class="text-lg"> タスクを作成 </span>
         </PrimaryStyleButton>
         <div class="flex h-full">
-            <div class="w-1/4 border-l border-r h-full">
+            <div class="w-1/4 h-full">
                 <DropDownArea
                     areaName="未着手"
                     tasks={noStartedTasks}
@@ -161,10 +210,9 @@
                     bind:deleting
                     bind:copying
                     onDrop={dequeueTodayTask}
-                    previousTasksNumber={noStartedTasks.length}
                 />
             </div>
-            <div class="w-1/4 border-r">
+            <div class="w-1/4 h-full">
                 <DropDownArea
                     areaName="今日のタスク"
                     tasks={todayTasks}
@@ -174,38 +222,35 @@
                     bind:deleting
                     bind:copying
                     onDrop={enqueueTodayTask}
-                    previousTasksNumber={todayTasks.length}
                 />
             </div>
             <div class="w-1/4 flex-col h-full">
-                <div bind:this={upperContainer} class="min-h-80 border-b pb-5">
+                <div bind:this={upperContainer} class="min-h-80 pb-5">
                     <DropDownArea
                         areaName="進行中"
-                        tasks={inProgressTask}
+                        tasks={$inProgressAreaTasks}
                         bind:draggingTask={draggingItem}
                         dropFromOthersDisabled={!canDropInProgressTaskAreaDisabled}
                         bind:editing
                         bind:deleting
                         bind:copying
                         onDrop={putInProgressTask}
-                        previousTasksNumber={inProgressTask.length}
                     />
                 </div>
-                <div bind:this={lowerContainer} class="pt-10 h-full">
+                <div bind:this={lowerContainer} class="h-full pb-18">
                     <DropDownArea
                         areaName="保留中"
-                        tasks={onHoldTasks}
+                        tasks={$onHoldAreaTasks}
                         bind:draggingTask={draggingItem}
                         dropFromOthersDisabled={!canDropOnHoldTaskAreaDisabled}
                         bind:editing
                         bind:deleting
                         bind:copying
                         onDrop={putOnHoldTask}
-                        previousTasksNumber={onHoldTasks.length}
                     />
                 </div>
             </div>
-            <div class="w-1/4 border-l border-r">
+            <div class="w-1/4 h-full">
                 <DropDownArea
                     areaName="完了"
                     tasks={sortedRecentlyCompletedTasks}
@@ -215,7 +260,6 @@
                     bind:deleting
                     bind:copying
                     onDrop={putCompletedTask}
-                    previousTasksNumber={recentlyCompletedTasks.length}
                 />
             </div>
             <!-- </div> -->
