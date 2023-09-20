@@ -8,7 +8,7 @@
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import PrimaryStyleButton from "@/Components/PrimaryStyleButton.svelte";
     import type { Task } from "@/types/task";
-    import { inProgressAreaTasks, onHoldAreaTasks } from "@/stores";
+    import { onHoldAreaTasks } from "@/stores";
 
     export let overDeadlineTasks: Task[];
     export let recentDeadlineTasks: Task[];
@@ -73,7 +73,8 @@
     import axios from "axios";
     let isProcessing = false;
 
-    const enqueueTodayTask = async (task: Task) => {
+    const enqueueTodayTask =  (task: Task): Task => {
+        let newTask = {...task};
         toast.promise(
             axios.patch(route("boards.enqueueTodayTask", { task: task.id }), {
                 is_today_task: true,
@@ -81,7 +82,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task = { ...task, is_today_task: true };
+                    newTask.is_today_task = true;
                     return "今日のタスクに追加しました";
                 },
                 error: (errors) => {
@@ -91,9 +92,12 @@
                 },
             }
         );
+
+        return newTask;
     };
 
-    const dequeueTodayTask = (task: Task) => {
+    const dequeueTodayTask = (task: Task): Task => {
+        let newTask = {...task};
         toast.promise(
             axios.patch(route("boards.dequeueTodayTask", { task: task.id }), {
                 is_today_task: false,
@@ -101,7 +105,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task = { ...task, is_today_task: false };
+                    newTask.is_today_task = false;
                     return "今日のタスクから削除しました";
                 },
                 error: (errors) => {
@@ -111,11 +115,13 @@
                 },
             }
         );
+        return newTask;
     };
 
     // 進行中のタスクは1つだけにする
     // 進行中のタスクがすでにある場合は、他のタスクを保留中に移動する
     const putInProgressTask = (task: Task) => {
+        let newTask = {...task};
         toast.promise(
             axios.patch(route("boards.putInProgressTask", { task: task.id }), {
                 status: "進行中",
@@ -123,7 +129,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.status.label = "進行中";
+                    newTask.status.label = "進行中";
                     return "進行中に移動しました";
                 },
                 error: (errors) => {
@@ -133,9 +139,11 @@
                 },
             }
         );
+        return newTask;
     };
 
     const putOnHoldTask = (task: Task) => {
+        let newTask = {...task};
         toast.promise(
             axios.patch(route("boards.putOnHoldTask", { task: task.id }), {
                 status: "保留中",
@@ -143,7 +151,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.status.label = "保留中";
+                    newTask.status.label = "保留中";
                     return "保留中に移動しました";
                 },
                 error: (errors) => {
@@ -153,9 +161,11 @@
                 },
             }
         );
+        return newTask;
     };
 
     const putCompletedTask = (task: Task) => {
+        let newTask = {...task};
         toast.promise(
             axios.patch(route("boards.putCompletedTask", { task: task.id }), {
                 status: "完了",
@@ -163,7 +173,7 @@
             {
                 loading: "保存中...",
                 success: () => {
-                    task.status.label = "完了";
+                    newTask.status.label = "完了";
                     return "完了に移動しました";
                 },
                 error: (errors) => {
@@ -173,6 +183,7 @@
                 },
             }
         );
+        return newTask;
     };
 </script>
 

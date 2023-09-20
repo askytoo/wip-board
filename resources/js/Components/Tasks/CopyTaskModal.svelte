@@ -51,7 +51,7 @@
         $form.estimated_effort = value.estimated_effort;
         $form.output = value.output;
         $form.description = value.description;
-        $form.is_today_task = value.is_today_task?.boolean;
+        $form.is_today_task = value.is_today_task;
     });
 
 </script>

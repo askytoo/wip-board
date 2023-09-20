@@ -11,7 +11,7 @@
     export let tasks: Task[];
     export let areaName: string;
     export let dropFromOthersDisabled = false;
-    export let onDrop: (task: Task) => void;
+    export let onDrop: (task: Task) => Task;
 
     const flipDurationMs = 300;
 
@@ -19,21 +19,32 @@
     // ドロップされたタスク以外を保留中のエリアに移動させる
     import { onHoldAreaTasks } from "@/stores";
     const onDropToInProgressArea = (tasks: Task[]) => {
+        // 進行中のエリア内にすでにあるタスクを抽出する
         const draggingTaskId = draggingTask.id;
         const _newTasks = tasks.filter(
             (task) =>
                 task.id !== draggingTaskId &&
                 task.id !== "id:dnd-shadow-placeholder-0000"
         );
+
+        // 抽出したタスクのstatusを保留中に変更する
         const newTasks = _newTasks.map((task) => {
             return {
                 ...task,
+
                 status: {
+                    ...task.status,
                     label: "保留中",
                 },
             };
         });
-        onHoldAreaTasks.set([...newTasks, ...$onHoldAreaTasks.filter((task) => task.id !== draggingTaskId)]);
+
+        // 保留中のエリアに移動させる
+        onHoldAreaTasks.set([
+            ...newTasks,
+            // フィルターは保留中のエリアから進行中のエリアに移動した場合のため
+            ...$onHoldAreaTasks.filter((task) => task.id !== draggingTaskId),
+        ]);
     };
 
     // onDragを実行するためのフラグ
@@ -68,15 +79,31 @@
             e.detail.info.trigger === "droppedIntoZone"
         ) {
             // dbに保存する処理
-            onDrop(draggingTask);
+            const updatedTask = onDrop(draggingTask);
 
+            if (areaName === "進行中") {
             // ドロップされたエリアが進行中のエリアの場合は、
             // ドロップされたタスク以外を保留中のエリアに移動させる
-            if (areaName === "進行中") {
                 onDropToInProgressArea(tasks);
-                tasks = [draggingTask];
-                updated = true;
+
+                // statusが更新されたタスクで更新する
+                tasks = [updatedTask];
+            } else {
+                // ドロップされたエリアが進行中以外の場合は、
+
+                // tasksをライブラリに沿って更新する
+                tasks = e.detail.items;
+
+                // ドロップされたタスクをstatusが更新されたタスクに入れ替える
+                tasks = tasks.map((task) => {
+                    if (task.id === draggingTask.id) {
+                        return updatedTask;
+                    } else {
+                        return task;
+                    }
+                });
             }
+            updated = true;
         }
 
         if (updated === false) {
@@ -86,7 +113,6 @@
         // フラグの初期化
         isFromOthers = true;
         isEnter = false;
-        console.log(areaName, tasks);
     };
 
     import { editingTask } from "@/stores";

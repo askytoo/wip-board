@@ -68,7 +68,7 @@ class Task extends Model
     }
 
     /**
-     * is_today_taskのアクセサとミューテタの定義
+     * is_today_taskのアクセサの定義
      *
      * @return Illuminate\Database\Eloquent\Casts\Attribute
      */
