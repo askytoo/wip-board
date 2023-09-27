@@ -21,10 +21,12 @@
     import { writable } from "svelte/store";
     import type {
         ColumnDef,
+        FilterFnOption,
         SortingState,
         TableOptions,
     } from "@tanstack/svelte-table";
     import FacetCheckboxes from "@/Components/Tasks/FacetCheckboxes.svelte";
+    import InputFilterDate from "./InputFilterDate.svelte";
     import TodayTaskCheckBox from "@/Components/Tasks/TodayTaskCheckBox.svelte";
 
     import TextBoxEdit from "svelte-material-icons/TextBoxEdit.svelte";
@@ -64,45 +66,132 @@
         return itemRank.passed;
     };
 
+    /**
+     * 日付のフィルタ用関数
+     */
+    const dateFilter: FilterFnOption<Task> = (
+        row,
+        columnId,
+        filterValue: [Date | null, Date | null]
+    ) => {
+        const isAfter = (date: Date, dateToCompare: Date | number) => {
+            return date.getTime() > new Date(dateToCompare).getTime();
+        };
+
+        const isBefore = (date: Date, dateToCompare: Date | number) => {
+            return date.getTime() < new Date(dateToCompare).getTime();
+        };
+
+        const isEqual = (date: Date, dateToCompare: Date | number) => {
+            return date.getTime() === new Date(dateToCompare).getTime();
+        };
+
+        const isWithinInterval = (date: Date, interval: Interval) => {
+            return (
+                isAfter(date, interval.start) &&
+                isBefore(date, interval.end) &&
+                isEqual(date, interval.start) === false &&
+                isEqual(date, interval.end) === false
+            );
+        };
+
+        const rowValue = row.getValue(columnId);
+        const rowValueDate = new Date(rowValue as string);
+
+        const filterStartDate = filterValue[0];
+        const filterEndDate = filterValue[1];
+
+        if (filterStartDate && filterEndDate) {
+            // 期間の開始・終了が指定されている場合
+            const isValid = isWithinInterval(rowValueDate, {
+                start: filterStartDate,
+                end: filterEndDate,
+            });
+            return isValid;
+        } else if (filterStartDate && !filterEndDate) {
+            // 期間の開始が指定されている場合
+            const isValid =
+                isEqual(rowValueDate, filterStartDate) ||
+                isAfter(rowValueDate, filterStartDate);
+            return isValid;
+        } else if (!filterStartDate && filterEndDate) {
+            // 期間の終了が指定されている場合
+            const isValid =
+                isEqual(rowValueDate, filterEndDate) ||
+                isBefore(rowValueDate, filterEndDate);
+            return isValid;
+        } else {
+            // 期間が指定されていない場合
+            return true;
+        }
+    };
+
     const defaultColumns: ColumnDef<Task>[] = [
         {
             accessorKey: "status.label",
             header: "ステータス",
             id: "status",
-            cell: (info) => info.getValue(),
+            cell: (info) => info.getValue() as string,
             filterFn: globalFilterFn,
         },
         {
             accessorKey: "deadline.full",
             header: () => "期日",
             id: "deadline",
-            cell: (info) => info.getValue(),
-            filterFn: globalFilterFn,
+            cell: (info) => info.getValue() as string,
+            filterFn: dateFilter,
         },
         {
             accessorKey: "title",
             header: () => "タイトル",
-            cell: (info) => info.getValue(),
+            cell: (info) => info.getValue() as string,
             filterFn: globalFilterFn,
         },
         {
             accessorKey: "estimated_effort",
             header: () => "見積作業時間(分)",
-            cell: (info) => (info.getValue() as number).toString(),
+            cell: (info) => info.getValue() as number,
             filterFn: globalFilterFn,
         },
         {
             accessorKey: "output",
             header: () => "アウトプット",
-            cell: (info) => info.getValue(),
+            cell: (info) => info.getValue() as string,
             filterFn: globalFilterFn,
         },
         {
             accessorKey: "is_today_task",
             header: () => "今日のタスク",
             id: "is_today_task",
-            cell: (info) => info.getValue(),
+            cell: (info) => info.getValue() as boolean,
             filterFn: globalFilterFn,
+        },
+        {
+            accessorKey: "created_at",
+            header: () => "作成日",
+            id: "created_at",
+            cell: (info) => info.getValue() as string,
+            filterFn: dateFilter,
+        },
+        {
+            accessorFn: (originalRow) => {
+                const row = originalRow as Task;
+                return getStartedAt(row);
+            },
+            header: () => "着手日",
+            id: "started_at",
+            cell: (info) => info.getValue() as string,
+            filterFn: dateFilter,
+        },
+        {
+            accessorFn: (originalRow) => {
+                const row = originalRow as Task;
+                return getCompletedAt(row);
+            },
+            header: () => "完了日",
+            id: "completed_at",
+            cell: (info) => info.getValue() as string,
+            filterFn: dateFilter,
         },
     ];
 
@@ -274,10 +363,14 @@
 
     import getStartedAt from "@/utils/getStartedAtFromTask";
     import getCompletedAt from "@/utils/getCompletedAtFromTask";
+    import getActualTaskEffort from "@/utils/getActualTaskEffort";
+
+    // filter用のカラムは表示しないようにする
+    const columnUnvisibilities = ["created_at", "started_at", "completed_at"];
 </script>
 
 <div class="px-4 text-gray-300 h-full overflow-y-auto hidden-scrollbar pb-44">
-    <div class="flex items-center">
+    <div class="flex">
         <FilterOutline
             class="dark:text-gray-300 text-gray-700 inline-block align-middle mr-2"
             size={"2rem"}
@@ -286,14 +379,64 @@
         {#each headerGroups as headerGroup}
             {#each headerGroup.headers as header}
                 {#if header.column.id === "status"}
-                    <details open>
-                        <summary>
+                    <details open={true}>
+                        <summary
+                            class="hover:text-indigo-400 hover:cursor-pointer"
+                        >
                             <h3 class="font-semibold inline-block">
                                 ステータス
                             </h3>
                         </summary>
 
                         <FacetCheckboxes
+                            table={$table}
+                            column={header.column}
+                        />
+                    </details>
+                {:else if header.column.id === "deadline"}
+                    <details open={true} class="pl-8">
+                        <summary
+                            class="hover:text-indigo-400 hover:cursor-pointer"
+                        >
+                            <h3 class="font-semibold inline-block">期日</h3>
+                        </summary>
+                        <InputFilterDate
+                            table={$table}
+                            column={header.column}
+                        />
+                    </details>
+                {:else if header.column.id === "created_at"}
+                    <details open={true} class="pl-4">
+                        <summary
+                            class="hover:text-indigo-400 hover:cursor-pointer"
+                        >
+                            <h3 class="font-semibold inline-block">作成日</h3>
+                        </summary>
+                        <InputFilterDate
+                            table={$table}
+                            column={header.column}
+                        />
+                    </details>
+                {:else if header.column.id === "started_at"}
+                    <details open={true} class="pl-4">
+                        <summary
+                            class="hover:text-indigo-400 hover:cursor-pointer"
+                        >
+                            <h3 class="font-semibold inline-block">着手日</h3>
+                        </summary>
+                        <InputFilterDate
+                            table={$table}
+                            column={header.column}
+                        />
+                    </details>
+                {:else if header.column.id === "completed_at"}
+                    <details open={true} class="pl-4">
+                        <summary
+                            class="hover:text-indigo-400 hover:cursor-pointer"
+                        >
+                            <h3 class="font-semibold inline-block">完了日</h3>
+                        </summary>
+                        <InputFilterDate
                             table={$table}
                             column={header.column}
                         />
@@ -330,30 +473,32 @@
                         {getExpandSymbol($table.getIsAllRowsExpanded())}
                     </button>
                     {#each headerGroup.headers as header}
-                        <th colspan={header.colSpan}>
-                            {#if !header.isPlaceholder}
-                                <button
-                                    class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
-                                    class:disabled={!header.column.getCanSort()}
-                                    disabled={!header.column.getCanSort()}
-                                    on:click={header.column.getToggleSortingHandler()}
-                                >
-                                    <svelte:component
-                                        this={flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-                                    />
-                                    <!-- <span class="pl-1"> -->
-                                    <!--     {getSortSymbol( -->
-                                    <!--         header.column -->
-                                    <!--             .getIsSorted() -->
-                                    <!--             .toString() -->
-                                    <!--     )} -->
-                                    <!-- </span> -->
-                                </button>
-                            {/if}
-                        </th>
+                        {#if !columnUnvisibilities.includes(header.column.id)}
+                            <th colspan={header.colSpan}>
+                                {#if !header.isPlaceholder}
+                                    <button
+                                        class="py-2 px-3 transition-colors ease-in-out hover:text-indigo-400 disabled:text-gray-600"
+                                        class:disabled={!header.column.getCanSort()}
+                                        disabled={!header.column.getCanSort()}
+                                        on:click={header.column.getToggleSortingHandler()}
+                                    >
+                                        <svelte:component
+                                            this={flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                        />
+                                        <!-- <span class="pl-1"> -->
+                                        <!--     {getSortSymbol( -->
+                                        <!--         header.column -->
+                                        <!--             .getIsSorted() -->
+                                        <!--             .toString() -->
+                                        <!--     )} -->
+                                        <!-- </span> -->
+                                    </button>
+                                {/if}
+                            </th>
+                        {/if}
                     {/each}
                 </tr>
             {/each}
@@ -368,23 +513,38 @@
                         </button>
                     </td>
                     {#each row.getVisibleCells() as cell}
-                        <td
-                            class="py-5 px-2 max-w-lg text-center whitespace-normal overflow-hidden"
-                        >
-                            {#if cell.column.id === "is_today_task"}
-                                <TodayTaskCheckBox
-                                    task={cell.getContext().row.original}
-                                    isTodayTask={cell.getValue()}
-                                />
-                            {:else}
-                                <svelte:component
-                                    this={flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                    )}
-                                />
-                            {/if}
-                        </td>
+                        {#if !columnUnvisibilities.includes(cell.column.id)}
+                            <td
+                                class="py-5 px-2 max-w-lg text-center whitespace-normal overflow-hidden"
+                            >
+                                {#if cell.column.id === "is_today_task"}
+                                    <TodayTaskCheckBox
+                                        task={cell.getContext().row.original}
+                                        isTodayTask={cell.getValue()}
+                                    />
+                                {:else}
+                                    <svelte:component
+                                        this={flexRender(
+                                            cell.column.id === "deadline"
+                                                ? new Date(
+                                                      cell.getValue()
+                                                  ).toLocaleDateString(
+                                                      "ja-JP",
+                                                      {
+                                                          year: "numeric",
+                                                          month: "2-digit",
+                                                          day: "2-digit",
+                                                          hour: "2-digit",
+                                                          minute: "2-digit",
+                                                      }
+                                                  )
+                                                : cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                    />
+                                {/if}
+                            </td>
+                        {/if}
                     {/each}
                     <td class="py-5 px-2 text-center">
                         <button
@@ -442,11 +602,11 @@
                                 <div class="pl-5">
                                     着手日: {getStartedAt(row.original)}
                                 </div>
-                                <div
-                                    class="pl-5 text-{row.original.status
-                                        .class}"
-                                >
+                                <div class="pl-5">
                                     完了日 : {getCompletedAt(row.original)}
+                                </div>
+                                <div class="pl-5">
+                                    実作業時間 : {getActualTaskEffort(row.original)}分
                                 </div>
                             </div>
                         </td>

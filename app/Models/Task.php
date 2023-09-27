@@ -112,7 +112,7 @@ class Task extends Model
         return new Attribute(
             get: fn ($value) => Carbon::parse($value)
                 ->timezone('Asia/Tokyo')
-                ->format('Y-m-d h:i')
+                ->format('Y/m/d h:i')
         );
     }
 

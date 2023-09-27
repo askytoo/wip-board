@@ -3,7 +3,7 @@
     import InputLabel from "../InputLabel.svelte";
     import InputError from "../InputError.svelte";
     import Switch from "svelte-switch";
-    import SveltyPicker, { config } from "svelty-picker";
+    import SveltyPicker from "svelty-picker";
     import { jp } from "svelty-picker/i18n";
 
     export let form;

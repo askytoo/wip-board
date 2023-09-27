@@ -44,7 +44,7 @@ class Activity extends Model
             // アクセサ
             get: fn ($value) => Carbon::parse($value)
                 ->timezone('Asia/Tokyo')
-                ->format('Y-m-d H:i'),
+                ->format('Y/m/d H:i'),
         );
     }
 

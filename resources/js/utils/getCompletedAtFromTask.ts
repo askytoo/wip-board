@@ -1,4 +1,5 @@
 import type { Task } from "@/types/task";
+
 /**
  * @param task - Task
  * @returns string - タスクの完了日時

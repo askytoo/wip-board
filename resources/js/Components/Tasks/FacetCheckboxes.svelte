@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import type {
         ColumnDef,
         FiltersColumn,
@@ -47,7 +48,7 @@
 
     let checkedCols = new Set();
 
-    checkedCols.add("未着手");
+    // checkedCols.add("未着手");
     (column as unknown as FiltersColumn<any>).setFilterValue(
         Array.from(checkedCols)
     );
@@ -70,24 +71,27 @@
 
         checkedColsArr = Array.from(checkedCols);
     }
+
 </script>
 
-<div class="flex gap-3">
+<div class="">
     {#each facetVals.top5 as top5}
-        <label class="checkbox">
-            <Checkbox
-                onChange={handleCheck}
-                name={top5.name}
-                checked={checkedColsArr.includes(top5.name)}
-            />
-            <span
-                class={checkedColsArr.includes(top5.name)
-                    ? "text-indigo-600 dark:text-indigo-400"
-                    : ""}
-            >
-                {top5.name} ({top5.value})
-            </span>
-        </label>
+        <div class="mt-2 ml-3">
+            <label class="checkbox">
+                <Checkbox
+                    onChange={handleCheck}
+                    name={top5.name}
+                    checked={checkedColsArr.includes(top5.name)}
+                />
+                <span
+                    class={checkedColsArr.includes(top5.name)
+                        ? "text-indigo-600 dark:text-indigo-400"
+                        : ""}
+                >
+                    {top5.name} ({top5.value})
+                </span>
+            </label>
+        </div>
     {/each}
     {#if facetVals.next20.length > 0}
         <div>
